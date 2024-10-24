@@ -8,7 +8,7 @@ def create_df():  # Cria um DataFrame vazio
     columns = ['type_', 'start', 'exp_date', 'exercise_price', 'swap_value', 'strike_swap', 'reward', 'position', 'market']
     return pd.DataFrame(columns=columns)
 
-def refactor_types(contract):
+def refactor_types(contract): # corrige os tipos de dado do data frame
     contract['type_'] = contract['type_'].astype('string')
     contract['start'] = pd.to_datetime(contract['start'],format='%d-%m-%Y')
     contract['exp_date'] = pd.to_datetime(contract['exp_date'],format='%d-%m-%Y')
@@ -19,7 +19,7 @@ def refactor_types(contract):
     contract['position'] = contract['position'].astype('string')
     contract['market'] = contract['market'].astype('string')
 
-def get_date_input(prompt):
+def get_date_input(prompt): # coleta os inputs de data no formato correto
     while True:
         date_str = input(prompt)
         try:
@@ -30,8 +30,8 @@ def get_date_input(prompt):
             print("Formato de data inválido. Por favor, use o formato DD-MM-YYYY.")
             
     
-    
 def inputs(contract):
+    
     while True:  # Loop para preencher um input
         # Solicitar dados ao usuário
         opcao = input("Deseja inserir um contrato?\nDigite uma das opções numéricas:\n1 - sim\n2 - não\ninput: ")
@@ -70,6 +70,8 @@ def inputs(contract):
     print(contract.to_markdown())
 
 ###############################   
+
+
 def main():
     contract = create_df()
     contract = refactor_types(contract)
