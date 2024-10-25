@@ -27,7 +27,7 @@ class SistemaGUI:
         self.notebook.add(self.aba1.frame, text="Buy/Sell")
         self.notebook.add(self.aba2.frame, text="Preços de Mercado")
         self.notebook.add(self.aba3.frame, text="Cálculo de P&L")
-
+        
         # Configura o evento de fechamento da janela
         self.root.protocol("WM_DELETE_WINDOW", self.fechar_programa)
 
@@ -62,14 +62,17 @@ class AbaBuySell:
         self.botao_adicionar_contrato_sell = tk.Button(self.frame, text="Adicionar Contrato sell", 
                                                         command=lambda: self.abrir_janela_adicionar("sell"))
         self.botao_adicionar_contrato_sell.pack(pady=5)
-
+        
         # Criação da tabela de buy
         self.table_buy = Table(self.frame, dataframe=self.buy_table, showtoolbar=True, showstatusbar=True)
         self.table_buy.pack(expand=True, fill='both')
-
+        
         # Criação da tabela de sell
         self.table_sell = Table(self.frame, dataframe=self.sell_table, showtoolbar=True, showstatusbar=True)
         self.table_sell.pack(expand=True, fill='both')
+    
+        self.carregar_tabelas()        
+         
 
     def abrir_janela_adicionar(self, tipo):
         # Cria uma nova janela "top-level" que flutua sobre a principal
