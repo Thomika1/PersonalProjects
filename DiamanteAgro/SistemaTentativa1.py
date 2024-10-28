@@ -38,7 +38,7 @@ class SistemaGUI:
 
 class AbaBuySell:
     columns = ['Trade No.', 'Underlying', 'Trade Date', 'Buy/Sell', 'Product Type', 'Ccy', 
-               'Delivery Month', 'Expire Date', 'Strike', 'Notional', 'Short', 'Sett. Price', 
+               'Delivery Month', 'Expire Date', 'Strike', 'Notional', 'Long', 'Short', 'Sett. Price', 
                'Delta', 'Premium (Eq USD)', 'MTM (Eq USD)']
 
     def __init__(self, notebook):

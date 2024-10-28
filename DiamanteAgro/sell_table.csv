@@ -1,4 +1,1 @@
-Trade No.,Underlying,Trade Date,Buy/Sell,Product Type,Ccy,Delivery Month,Expire Date,Strike,Notional,Short,Sett. Price,Delta,Premium (Eq USD),MTM (Eq USD)
-b,b,b,b,b,b,b,b,b,b,b,b,b,b,b
-c,c,c,c,c,c,c,c,c,c,c,c,c,c,c
-f,,,,,asdasd,,,,,,,,,
+Trade No.,Underlying,Trade Date,Buy/Sell,Product Type,Ccy,Delivery Month,Expire Date,Strike,Notional,Long,Short,Sett. Price,Delta,Premium (Eq USD),MTM (Eq USD)
