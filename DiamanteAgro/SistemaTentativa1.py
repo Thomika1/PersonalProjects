@@ -37,7 +37,7 @@ class SistemaGUI:
         self.root.destroy()
 
 class AbaBuySell:
-    columns = ['Trade No.', 'Underlying', 'Trade Date', 'Buy/Sell', 'Product Type', 'Ccy', 
+    columns = ['Trade No.', 'Swap/Option','Underlying', 'Trade Date', 'Buy/Sell', 'Product Type', 'Ccy', 
                'Delivery Month', 'Expire Date', 'Strike', 'Notional', 'Long', 'Short', 'Sett. Price', 
                'Delta', 'Premium (Eq USD)', 'MTM (Eq USD)']
 
@@ -45,53 +45,42 @@ class AbaBuySell:
         # Cria o frame da aba
         self.frame = ttk.Frame(notebook)
 
-        # Inicializa as tabelas de buy e sell como atributos de instância
-        self.buy_table = pd.DataFrame(columns=self.columns)
-        self.sell_table = pd.DataFrame(columns=self.columns)
+        # Inicializa a tabela principal como DataFrame
+        self.table = pd.DataFrame(columns=self.columns)
         
-        buy_model = TableModel(self.buy_table)
-        sell_model = TableModel(self.sell_table)
-
         # Adiciona uma label como exemplo
-        self.label = tk.Label(self.frame, text="Aba Buy/Sell")
+        self.label = tk.Label(self.frame, text="Aba swap/options")
         self.label.pack()
 
-        # Botão para abrir a janela de adição de contrato buy
-        self.botao_adicionar_contrato_buy = tk.Button(self.frame, text="Adicionar Contrato buy", 
-                                                       command=lambda: self.abrir_janela_adicionar("buy"))
-        self.botao_adicionar_contrato_buy.pack(pady=10)
+        # Botão para abrir a janela de adição de contrato
+        self.botao_adicionar_contrato = tk.Button(self.frame, text="Adicionar Contrato", 
+                                                  command=self.abrir_janela_adicionar)
+        self.botao_adicionar_contrato.pack(pady=10)
+        
+        # Frame para a tabela de swap
+        frame_table_swap = tk.Frame(self.frame)
+        frame_table_swap.pack(expand=True, fill='both')
+        
+        # Criação da tabela de swap com filtro
+        self.table_swap = Table(frame_table_swap, dataframe=self.table[self.table["Swap/Option"] == "swap"],
+                                showtoolbar=True, showstatusbar=True)
+        
+        # Frame para a tabela de options
+        frame_table_option = tk.Frame(self.frame)
+        frame_table_option.pack(expand=True, fill='both')
+        
+        # Criação da tabela de options com filtro
+        self.table_option = Table(frame_table_option, dataframe=self.table[self.table["Swap/Option"] == "option"],
+                                  showtoolbar=True, showstatusbar=True)
 
-        # Botão para abrir a janela de adição de contrato sell
-        self.botao_adicionar_contrato_sell = tk.Button(self.frame, text="Adicionar Contrato sell", 
-                                                        command=lambda: self.abrir_janela_adicionar("sell"))
-        self.botao_adicionar_contrato_sell.pack(pady=5)
-        
-        
-        # Frame para a tabela de buy
-        frame_buy = tk.Frame(self.frame)
-        frame_buy.pack(expand=True, fill='both')
-        
-        # Criação da tabela de buy
-        self.table_buy = Table(frame_buy, model=buy_model, dataframe=self.buy_table, showtoolbar=True, showstatusbar=True)
-        self.table_buy.updateModel(TableModel(self.sell_table))
-        
-        
-        # Frame para a tabela de sell
-        frame_sell = tk.Frame(self.frame)
-        frame_sell.pack(expand=True, fill='both')
-        
-        # Criação da tabela de sell
-        self.table_sell = Table(frame_sell, model=sell_model, dataframe=self.sell_table, showtoolbar=True, showstatusbar=True)
-        self.table_sell.updateModel(TableModel(self.sell_table))
-
+        # Carrega e exibe as tabelas
         self.carregar_tabelas()
-        
-        self.table_sell.show()
-        self.table_buy.show()
+        self.table_swap.show()
+        self.table_option.show()
         
         
          
-    def abrir_janela_adicionar(self, tipo):
+    def abrir_janela_adicionar(self):
         # Cria uma nova janela "top-level" que flutua sobre a principal
         janela_adicionar = tk.Toplevel(self.frame)
         janela_adicionar.title("Adicionar Contrato")
@@ -120,48 +109,51 @@ class AbaBuySell:
         def adicionar_contrato():
             # Extrai os valores digitados em cada campo de entrada
             dados = {coluna: entradas[coluna].get() for coluna in self.columns}
-            print("Acessando table_buy e table_sell...")
-            print(f"table_buy: {hasattr(self, 'table_buy')}")
-            print(f"table_sell: {hasattr(self, 'table_sell')}")
 
-            # Adiciona uma nova linha na tabela de acordo com o tipo Buy/Sell
-            if tipo == "buy":
-                self.buy_table = pd.concat([self.buy_table, pd.DataFrame([dados])], ignore_index=True)
-                self.table_buy.updateModel(TableModel(self.buy_table))  # Atualiza o modelo da tabela de buy
-                self.table_buy.redraw()  # Redesenha a tabela de buy
-            elif tipo == "sell":
-                self.sell_table = pd.concat([self.sell_table, pd.DataFrame([dados])], ignore_index=True)
-                self.table_sell.updateModel(TableModel(self.sell_table))  # Atualiza o modelo da tabela de sell
-                self.table_sell.redraw()  # Redesenha a tabela de sell
+            # Converte os dados em DataFrame e concatena com self.table
+            nova_linha = pd.DataFrame([dados])
+            self.table = pd.concat([self.table, nova_linha], ignore_index=True)
+
+            # Atualiza as visualizações específicas para swap e option
+            if dados["Swap/Option"].lower() == "swap":
+                self.table_swap.updateModel(TableModel(self.table[self.table["Swap/Option"] == "swap"]))
+                self.table_swap.redraw()
+            elif dados["Swap/Option"].lower() == "option":
+                self.table_option.updateModel(TableModel(self.table[self.table["Swap/Option"] == "option"]))
+                self.table_option.redraw()
 
             # Fecha a janela após adicionar o contrato
             janela_adicionar.destroy()
-            
-        
+
         # Botão para adicionar contrato e fechar a janela
         botao_adicionar = tk.Button(janela_adicionar, text="Adicionar", command=adicionar_contrato)
         botao_adicionar.pack(pady=10)
 
+
     def salvar_tabelas(self):
         diretorio_atual = os.path.dirname(os.path.abspath(__file__))
         # Salva as tabelas em arquivos CSV no diretório atual
-        self.buy_table.to_csv(os.path.join(diretorio_atual, "buy_table.csv"), index=False)
-        self.sell_table.to_csv(os.path.join(diretorio_atual, "sell_table.csv"), index=False)
+        self.table.to_csv(os.path.join(diretorio_atual, "table.csv"), index=False)
+        
 
     def carregar_tabelas(self):
         # Carrega as tabelas do CSV se existirem
         diretorio_atual = os.path.dirname(os.path.abspath(__file__))
+        caminho_arquivo = os.path.join(diretorio_atual, "table.csv")
         
-        if os.path.exists(os.path.join(diretorio_atual, "buy_table.csv")):
-            self.buy_table = pd.read_csv(os.path.join(diretorio_atual, "buy_table.csv"))
-            self.table_buy.updateModel(TableModel(self.buy_table))  # Atualiza a tabela de buy com dados carregados
-            self.table_buy.redraw()
+        if os.path.exists(caminho_arquivo):
+            # Carrega os dados do CSV para o DataFrame principal
+            self.table = pd.read_csv(caminho_arquivo)
             
+            # Atualiza os modelos das tabelas swap e option com os novos dados
+            self.table_swap.updateModel(TableModel(self.table[self.table["Swap/Option"] == "swap"]))
+            self.table_option.updateModel(TableModel(self.table[self.table["Swap/Option"] == "option"]))
             
-        if os.path.exists(os.path.join(diretorio_atual, "sell_table.csv")):
-            self.sell_table = pd.read_csv(os.path.join(diretorio_atual, "sell_table.csv"))
-            self.table_sell.updateModel(TableModel(self.sell_table))  # Atualiza a tabela de sell com dados carregados
-            self.table_sell.redraw()
+            # Redesenha as tabelas para refletir os dados carregados
+            self.table_swap.redraw()
+            self.table_option.redraw()
+
+            
             
 
 class AbaPrecosMercado:
