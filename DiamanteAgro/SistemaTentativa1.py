@@ -15,7 +15,7 @@ class SistemaGUI:
         self.root.geometry(f"{largura}x{altura}+0+0")
 
         # Criação do notebook para organizar as abas
-        self.notebook = ttk.Notebook(self.root)
+        self.notebook = ttk.Notebook(root, style="CustomNotebook.TNotebook")
         self.notebook.pack(expand=True, fill="both")
 
         # Instancia as abas e adiciona ao notebook
@@ -23,8 +23,12 @@ class SistemaGUI:
         self.aba2 = AbaPrecosMercado(self.notebook)
         self.aba3 = AbaCalculoPL(self.notebook)
         
+        #define o estilo da fonte e tamanho
+        style = ttk.Style()
+        style.configure("CustomNotebook.TNotebook.Tab", font=("Times New Roman", 12, "bold"))
+        
         # Adiciona as abas ao notebook
-        self.notebook.add(self.aba1.frame, text="Buy/Sell")
+        self.notebook.add(self.aba1.frame, text="Swap/Option")
         self.notebook.add(self.aba2.frame, text="Preços de Mercado")
         self.notebook.add(self.aba3.frame, text="Cálculo de P&L")
         
@@ -110,6 +114,20 @@ class AbaBuySell:
             # Extrai os valores digitados em cada campo de entrada
             dados = {coluna: entradas[coluna].get() for coluna in self.columns}
 
+            # Verifica se o campo 'Delivery Month' está nos dados
+            if 'Delivery Month' in dados:
+                try:
+                    # Converte o valor do mês para um número
+                    mes = int(dados['Delivery Month'])
+                    if mes < 1 or mes > 12:
+                        raise ValueError("Mês inválido.")
+                except ValueError:
+                    print("Erro: Mês de entrega inválido. Por favor, insira um valor entre 1 e 12.")
+                    return
+            else:
+                print("Erro: Campo 'Delivery Month' não encontrado.")
+                return
+
             # Converte os dados em DataFrame e concatena com self.table
             nova_linha = pd.DataFrame([dados])
             self.table = pd.concat([self.table, nova_linha], ignore_index=True)
@@ -122,8 +140,24 @@ class AbaBuySell:
                 self.table_option.updateModel(TableModel(self.table[self.table["Swap/Option"] == "option"]))
                 self.table_option.redraw()
 
+            # Salva a tabela por mês em um arquivo CSV específico
+            diretorio_atual = os.path.dirname(os.path.abspath(__file__))
+            caminho_arquivo_mes = os.path.join(diretorio_atual, f"table_{mes}.csv")
+
+            # Carrega o arquivo existente do mês, se ele existir, para adicionar a nova linha
+            if os.path.exists(caminho_arquivo_mes):
+                tabela_mes = pd.read_csv(caminho_arquivo_mes)
+                tabela_mes = pd.concat([tabela_mes, nova_linha], ignore_index=True)
+            else:
+                # Se o arquivo não existir, a nova tabela será apenas a nova linha
+                tabela_mes = nova_linha
+
+            # Salva a tabela atualizada no arquivo do mês
+            tabela_mes.to_csv(caminho_arquivo_mes, index=False)
+
             # Fecha a janela após adicionar o contrato
             janela_adicionar.destroy()
+
 
         # Botão para adicionar contrato e fechar a janela
         botao_adicionar = tk.Button(janela_adicionar, text="Adicionar", command=adicionar_contrato)
@@ -132,26 +166,51 @@ class AbaBuySell:
 
     def salvar_tabelas(self):
         diretorio_atual = os.path.dirname(os.path.abspath(__file__))
-        # Salva as tabelas em arquivos CSV no diretório atual
-        self.table.to_csv(os.path.join(diretorio_atual, "table.csv"), index=False)
+        
+        # Verifica se a coluna "Delivery Month" existe na tabela
+        if "Delivery Month" not in self.table.columns:
+            print("A coluna 'Delivery Month' não foi encontrada na tabela.")
+            return
+
+        # Agrupa a tabela por mês com base na coluna "Delivery Month"
+        for mes, dados_mes in self.table.groupby("Delivery Month"):
+            # Define o nome do arquivo com base no número do mês
+            nome_arquivo = f"table_{mes}.csv"
+            caminho_arquivo = os.path.join(diretorio_atual, nome_arquivo)
+            
+            # Salva o DataFrame correspondente ao mês em um arquivo CSV
+            dados_mes.to_csv(caminho_arquivo, index=False)
+            print(f"Tabela para o mês {mes} salva como {nome_arquivo}.")
         
 
     def carregar_tabelas(self):
-        # Carrega as tabelas do CSV se existirem
+        # Define o diretório atual onde os arquivos CSV estão armazenados
         diretorio_atual = os.path.dirname(os.path.abspath(__file__))
-        caminho_arquivo = os.path.join(diretorio_atual, "table.csv")
         
-        if os.path.exists(caminho_arquivo):
-            # Carrega os dados do CSV para o DataFrame principal
-            self.table = pd.read_csv(caminho_arquivo)
+        # Cria um DataFrame vazio para armazenar os dados combinados de todos os meses
+        self.table = pd.DataFrame(columns=self.columns)
+        
+        # Carrega os arquivos CSV por mês (1 a 12)
+        for mes in range(1, 13):
+            caminho_arquivo = os.path.join(diretorio_atual, f"table_{mes}.csv")
             
-            # Atualiza os modelos das tabelas swap e option com os novos dados
+            # Verifica se o arquivo do mês existe
+            if os.path.exists(caminho_arquivo):
+                # Carrega o CSV e o anexa ao DataFrame principal
+                dados_mes = pd.read_csv(caminho_arquivo)
+                self.table = pd.concat([self.table, dados_mes], ignore_index=True)
+        
+        # Atualiza as tabelas de swap e option com os dados carregados
+        if not self.table.empty:
+            # Atualiza o modelo para a tabela de swap
             self.table_swap.updateModel(TableModel(self.table[self.table["Swap/Option"] == "swap"]))
-            self.table_option.updateModel(TableModel(self.table[self.table["Swap/Option"] == "option"]))
-            
-            # Redesenha as tabelas para refletir os dados carregados
             self.table_swap.redraw()
+
+            # Atualiza o modelo para a tabela de option
+            self.table_option.updateModel(TableModel(self.table[self.table["Swap/Option"] == "option"]))
             self.table_option.redraw()
+        else:
+            print("Nenhum dado foi carregado, os arquivos CSV mensais podem não existir.")
 
             
             
