@@ -57,6 +57,12 @@ class AbaBuySell:
                                                   command=self.abrir_janela_adicionar)
         self.botao_adicionar_contrato.pack(pady=10)
         
+        #botão para abrir a janela de exibição das tabelas por mes
+        self.botao_exibir_tabelas_mes = tk.Button(self.frame, text='Abrir exibição por mẽs',
+                                                  command=self.abrir_janela_exibicao_mes)
+        self.botao_exibir_tabelas_mes.pack(pady=15)
+        
+        
         # Frame para a tabela de swap
         frame_table_swap = tk.Frame(self.frame)
         frame_table_swap.pack(expand=True, fill='both')
@@ -64,6 +70,7 @@ class AbaBuySell:
         # Criação da tabela de swap com filtro
         self.table_swap = Table(frame_table_swap, dataframe=self.table[self.table["Swap/Option"] == "swap"],
                                 showtoolbar=True, showstatusbar=True)
+        
         
         # Frame para a tabela de options
         frame_table_option = tk.Frame(self.frame)
@@ -77,6 +84,40 @@ class AbaBuySell:
         self.carregar_tabelas()
         self.table_swap.show()
         self.table_option.show()
+        
+    #função para abrir janela que exibe as tabelas filtradas por mes
+    def abrir_janela_exibicao_mes(self):
+        #cria a janela para exibir as tabelas
+        janela_exibicao_mes = tk.Toplevel(self.frame)
+        janela_exibicao_mes.title("Tabelas por mês")
+        
+        #definindo o tamanho da janela
+        janela_exibicao_mes.geometry("800x600")
+        
+        #cria o frame para inserir a Table
+        frame_table_mes1 = tk.Frame(janela_exibicao_mes)
+        frame_table_mes1.pack(expand=True, fill='both')
+        
+        #lista de valores
+        mes_list = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro']
+        
+        #combobox com o valores e posição 
+        box_mes = ttk.Combobox(frame_table_mes1, values=mes_list)
+        box_mes.pack(pady=10)
+        
+        #filtrar os valores e salvar
+        def exibe_tabelas():
+            pass
+        
+        #cria botao para gerar as tabelas filtradas
+        botao_exibe_tabelas_mes = tk.Button(frame_table_mes1, text = 'Exibir Tabelas',command=exibe_tabelas)
+        botao_exibe_tabelas_mes.pack(pady=15)
+        
+        
+        #self.table_mes1 = Table(frame_table_mes1, dataframe=self.table[self.table["Swap/Option"] == "swap"],
+                                #showtoolbar=True, showstatusbar=True)
+        
+        
         
         
          
