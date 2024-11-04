@@ -113,6 +113,9 @@ class AbaBuySell:
         botao_exibe_tabelas_mes = tk.Button(frame_table_mes1, text = 'Exibir Tabelas',command=exibe_tabelas)
         botao_exibe_tabelas_mes.pack(pady=15)
         
+        #preciso fazer com que a função leia a tabela especifica selecionada pelo combobox, depois separa-las por swap e options, prevejo um
+        #problema com a atualização da tabela na janela de adicionar contrato, posso talvez resolve-lo chamando novamente a função interna ao adicionar uma tabela, mas acho
+        #uma solução improvável, preciso investigar.
         
         #self.table_mes1 = Table(frame_table_mes1, dataframe=self.table[self.table["Swap/Option"] == "swap"],
                                 #showtoolbar=True, showstatusbar=True)
@@ -120,7 +123,7 @@ class AbaBuySell:
         
         
         
-         
+    #função para abrir a janela com suas respectivas caracteristicas     
     def abrir_janela_adicionar(self):
         # Cria uma nova janela "top-level" que flutua sobre a principal
         janela_adicionar = tk.Toplevel(self.frame)
@@ -171,7 +174,7 @@ class AbaBuySell:
         botao_adicionar.pack(pady=10)
 
 
-
+    #função salva as tabelas
     def salvar_tabelas(self):
         diretorio_atual = os.path.dirname(os.path.abspath(__file__))
         
@@ -190,7 +193,7 @@ class AbaBuySell:
             dados_mes.to_csv(caminho_arquivo, index=False)
             print(f"Tabela para o mês {mes} salva como {nome_arquivo}.")
 
-        
+    #função para carregar o conteudo das tabelas
     def carregar_tabelas(self):
         diretorio_atual = os.path.dirname(os.path.abspath(__file__))
         self.table = pd.DataFrame(columns=self.columns)
@@ -220,10 +223,6 @@ class AbaBuySell:
             self.table_option.redraw()
         else:
             print("Nenhum dado foi carregado; os arquivos CSV mensais podem não existir.")
-
-
-
-            
             
 
 class AbaPrecosMercado:
