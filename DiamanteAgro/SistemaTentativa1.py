@@ -47,6 +47,8 @@ class AbaBuySell:
 
         # Inicializa a tabela principal como DataFrame
         self.table = pd.DataFrame(columns=self.columns)
+        self.table_junto = pd.DataFrame(columns=self.columns)
+        self.table2 = pd.DataFrame(columns=self.columns)
         
         # Adiciona uma label como exemplo
         self.label = tk.Label(self.frame, text="Aba swap/options")
@@ -87,61 +89,56 @@ class AbaBuySell:
         
     
     def abrir_janela_exibicao_mes(self):
-        # Lista de valores para os meses
+        #lista de valores
         mes_list = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro']
         
-        # Caminho dos arquivos
+        #caminho dos arquivos
         diretorio_atual = os.path.dirname(os.path.abspath(__file__))
         
-        # Cria a janela para exibir as tabelas
+        #cria a janela para exibir as tabelas
         janela_exibicao_mes = tk.Toplevel(self.frame)
         janela_exibicao_mes.title("Tabelas por mês")
+        
+        
+        
+        #definindo o tamanho da janela
         janela_exibicao_mes.geometry("1920x1080")
-
-        # Cria um canvas com scrollbar
-        canvas = tk.Canvas(janela_exibicao_mes)
         
-        canvas.pack(side="left", fill="both", expand=True)
-        scrollbar = ttk.Scrollbar(janela_exibicao_mes, orient="vertical", command=canvas.yview)
-        scrollbar.pack(side="right", fill="y")
-        canvas.configure(yscrollcommand=scrollbar.set)
-
-        # Frame para conteúdo dentro do canvas
-        frame_conteudo = tk.Frame(canvas)
-        canvas.create_window((0, 0), window=frame_conteudo, anchor="nw")
-
-        # Atualiza a área de rolagem do canvas
-        def on_frame_configure(event):
-            canvas.configure(scrollregion=canvas.bbox("all"))
-
-        frame_conteudo.bind("<Configure>", on_frame_configure)
-
-        # Frames para cada mês
-        frame_mes1 = tk.LabelFrame(frame_conteudo, text="Mês 1", padx=5, pady=5)
-        frame_mes1.pack(expand=True, fill="both", pady=10)
+        #frame para o botao e as combobox
+        frame_botao = tk.Frame(janela_exibicao_mes)
+        frame_botao.pack(expand=True, fill='both')
         
-        frame_mes2 = tk.LabelFrame(frame_conteudo, text="Mês 2", padx=5, pady=5)
-        frame_mes2.pack(expand=True, fill="both", pady=10)
 
-        # Frame para o botão e as comboboxes
-        frame_botao = tk.Frame(frame_conteudo)
-        frame_botao.pack(expand=True, fill='both', pady=10)
+        frame_mes1 = tk.LabelFrame(janela_exibicao_mes, text="Mês 1")
+        frame_mes1.pack(side="left", expand=True, fill="both")  # Ajustar para 'side="left"'
 
-        # Comboboxes para seleção de mês
+        frame_mes2 = tk.LabelFrame(janela_exibicao_mes, text="Mês 2")
+        frame_mes2.pack(side="right", expand=True, fill="both")  # Ajustar para 'side="right"'
+            
+        
+        #combobox com o valores e posição 
         box_mes1 = ttk.Combobox(frame_botao, values=mes_list)
         box_mes1.pack(pady=5)
         
         box_mes2 = ttk.Combobox(frame_botao, values=mes_list)
         box_mes2.pack(pady=5)
-
-        # Função para exibir as tabelas
-        def exibe_tabelas():
+        
+        def exibe_tabelas(): #filtrar os valores e salvar
             # Mapeamento dos meses por nome para número
             meses = {
-                "Janeiro": "1", "Fevereiro": "2", "Março": "3", "Abril": "4", 
-                "Maio": "5", "Junho": "6", "Julho": "7", "Agosto": "8", 
-                "Setembro": "9", "Outubro": "10", "Novembro": "11", "Dezembro": "12"
-            }
+                "Janeiro": "1",
+                "Fevereiro": "2",
+                "Março": "3",
+                "Abril": "4",
+                "Maio": "5",
+                "Junho": "6",
+                "Julho": "7",
+                "Agosto": "8",
+                "Setembro": "9",
+                "Outubro": "10",
+                "Novembro": "11",
+                "Dezembro": "12"
+            } # dicionario para mapear os meses
             
             # Obter os meses selecionados
             mes1 = box_mes1.get()
@@ -151,22 +148,38 @@ class AbaBuySell:
             mes1_num = meses[mes1]
             mes2_num = meses[mes2]
             
-            # Caminhos dos arquivos CSV
             caminho_arquivo_mes1 = os.path.join(diretorio_atual, f"table_{mes1_num}.csv")
             caminho_arquivo_mes2 = os.path.join(diretorio_atual, f"table_{mes2_num}.csv")
+            
+            
             
             # Carregar os arquivos CSV correspondentes
             df_mes1 = pd.read_csv(caminho_arquivo_mes1)
             df_mes2 = pd.read_csv(caminho_arquivo_mes2)
             
+            
+            
+            #POSSO USAR SELF_TABLE_JUNTO PARA QUE ATUALIZE SEMPRE 
+            
+            table_p_concat_mes1 = self.table[self.table["Delivery Month"] == mes1]
+            df_mes1_concat = pd.concat([table_p_concat_mes1, df_mes1], ignore_index=True)
+            
+            table_p_concat_mes2 = self.table[self.table["Delivery Month"] == mes2]
+            df_mes2_concat = pd.concat([table_p_concat_mes2, df_mes2], ignore_index=True)
+            
+            
             # Filtrar e exibir as tabelas para cada tipo (Swap e Option) separadamente
-            df_mes1_swap = df_mes1[df_mes1["Swap/Option"] == "swap"]
-            df_mes1_option = df_mes1[df_mes1["Swap/Option"] == "option"]
+            # Para o mês 1
+            df_mes1_swap = df_mes1_concat[df_mes1["Swap/Option"] == "swap"]
+            df_mes1_option = df_mes1_concat[df_mes1["Swap/Option"] == "option"]
             
-            df_mes2_swap = df_mes2[df_mes2["Swap/Option"] == "swap"]
-            df_mes2_option = df_mes2[df_mes2["Swap/Option"] == "option"]
+            # Para o mês 2
+            df_mes2_swap = df_mes2_concat[df_mes2["Swap/Option"] == "swap"]
+            df_mes2_option = df_mes2_concat[df_mes2["Swap/Option"] == "option"]
             
-            # Exibir as tabelas em frames diferentes
+            
+            
+            # Exibir as tabelas em frames diferentes para cada categoria e mês
             table_mes1_swap = Table(frame_table_mes1_swap, dataframe=df_mes1_swap, showtoolbar=True, showstatusbar=True)
             table_mes1_option = Table(frame_table_mes1_option, dataframe=df_mes1_option, showtoolbar=True, showstatusbar=True)
             table_mes2_swap = Table(frame_table_mes2_swap, dataframe=df_mes2_swap, showtoolbar=True, showstatusbar=True)
@@ -178,22 +191,24 @@ class AbaBuySell:
             table_mes2_swap.show()
             table_mes2_option.show()
         
-        # Botão para exibir as tabelas filtradas
-        botao_exibe_tabelas_mes = tk.Button(frame_botao, text='Exibir Tabelas', command=exibe_tabelas)
-        botao_exibe_tabelas_mes.pack(pady=5)
 
-        # Frames para inserir as tabelas
-        frame_table_mes1_swap = tk.Frame(frame_mes1)
-        frame_table_mes1_swap.pack(expand=True, fill='both', padx=5, pady=5)
         
-        frame_table_mes1_option = tk.Frame(frame_mes1)
-        frame_table_mes1_option.pack(expand=True, fill='both', padx=5, pady=5)
+        #cria botao para gerar as tabelas filtradas
+        botao_exibe_tabelas_mes = tk.Button(frame_botao, text = 'Exibir Tabelas',command=exibe_tabelas)
+        botao_exibe_tabelas_mes.pack(pady=5)
         
-        frame_table_mes2_swap = tk.Frame(frame_mes2)
-        frame_table_mes2_swap.pack(expand=True, fill='both', padx=5, pady=5)
+        #cria o frame para inserir a Table
+        frame_table_mes1_swap = tk.LabelFrame(frame_mes1,text='Swap')
+        frame_table_mes1_swap.pack(expand=True, fill='both')
         
-        frame_table_mes2_option = tk.Frame(frame_mes2)
-        frame_table_mes2_option.pack(expand=True, fill='both', padx=5, pady=5)
+        frame_table_mes1_option = tk.LabelFrame(frame_mes1,text='Option')
+        frame_table_mes1_option.pack(expand=True, fill='both')
+        
+        frame_table_mes2_swap = tk.LabelFrame(frame_mes2,text='Swap')
+        frame_table_mes2_swap.pack(expand=True, fill='both')
+        
+        frame_table_mes2_option = tk.LabelFrame(frame_mes2,text='Option')
+        frame_table_mes2_option.pack(expand=True, fill='both')
         
         
     #função para abrir a janela com suas respectivas caracteristicas     
@@ -231,12 +246,15 @@ class AbaBuySell:
             nova_linha = pd.DataFrame([dados])
             self.table = pd.concat([self.table, nova_linha], ignore_index=True)
 
+            
             # Atualiza as visualizações específicas para swap e option
+            self.table_junto = pd.concat([self.table, self.table2], ignore_index=True)
+            
             if dados["Swap/Option"].lower() == "swap":
-                self.table_swap.updateModel(TableModel(self.table[self.table["Swap/Option"] == "swap"]))
+                self.table_swap.updateModel(TableModel(self.table_junto[self.table_junto["Swap/Option"] == "swap"]))
                 self.table_swap.redraw()
             elif dados["Swap/Option"].lower() == "option":
-                self.table_option.updateModel(TableModel(self.table[self.table["Swap/Option"] == "option"]))
+                self.table_option.updateModel(TableModel(self.table_junto[self.table_junto["Swap/Option"] == "option"]))
                 self.table_option.redraw()
 
             # Fecha a janela após adicionar o contrato
@@ -249,7 +267,7 @@ class AbaBuySell:
     #função salva as tabelas
     def salvar_tabelas(self):
         diretorio_atual = os.path.dirname(os.path.abspath(__file__))
-        
+    
         # Verifica se a coluna "Delivery Month" existe na tabela
         if "Delivery Month" not in self.table.columns:
             print("A coluna 'Delivery Month' não foi encontrada na tabela.")
@@ -261,14 +279,20 @@ class AbaBuySell:
             nome_arquivo = f"table_{mes}.csv"
             caminho_arquivo = os.path.join(diretorio_atual, nome_arquivo)
             
-            # Salva o DataFrame correspondente ao mês em um arquivo CSV
+            # Verifica se o arquivo já existe
+            if os.path.exists(caminho_arquivo):
+                # Se o arquivo existe, carrega os dados existentes
+                dados_existentes = pd.read_csv(caminho_arquivo)
+                # Concatena os novos dados com os dados existentes
+                dados_mes = pd.concat([dados_existentes, dados_mes])
+            
+            # Salva o DataFrame (novo ou concatenado) em um arquivo CSV
             dados_mes.to_csv(caminho_arquivo, index=False)
             print(f"Tabela para o mês {mes} salva como {nome_arquivo}.")
 
     #função para carregar o conteudo das tabelas
     def carregar_tabelas(self):
         diretorio_atual = os.path.dirname(os.path.abspath(__file__))
-        self.table = pd.DataFrame(columns=self.columns)
 
         # Carrega os arquivos CSV por mês (1 a 12)
         for mes in range(1, 13):
@@ -277,21 +301,21 @@ class AbaBuySell:
             if os.path.exists(caminho_arquivo):
                 #print(f"Carregando dados de: {caminho_arquivo}")
                 dados_mes = pd.read_csv(caminho_arquivo)
-                self.table = pd.concat([self.table, dados_mes], ignore_index=True)
+                self.table2 = pd.concat([self.table2, dados_mes], ignore_index=True)
             else:
                 print(f"Arquivo não encontrado para o mês {mes}.")
 
-        if not self.table.empty:
+        if not self.table2.empty:
             # Debug: Exibir os dados carregados
             #print("Dados carregados para 'self.table':")
             #print(self.table.head())
 
             # Atualiza o modelo para a tabela de swap
-            self.table_swap.updateModel(TableModel(self.table[self.table["Swap/Option"].str.lower() == "swap"]))
+            self.table_swap.updateModel(TableModel(self.table2[self.table2["Swap/Option"].str.lower() == "swap"]))
             self.table_swap.redraw()
 
             # Atualiza o modelo para a tabela de option
-            self.table_option.updateModel(TableModel(self.table[self.table["Swap/Option"].str.lower() == "option"]))
+            self.table_option.updateModel(TableModel(self.table2[self.table2["Swap/Option"].str.lower() == "option"]))
             self.table_option.redraw()
         else:
             print("Nenhum dado foi carregado; os arquivos CSV mensais podem não existir.")
