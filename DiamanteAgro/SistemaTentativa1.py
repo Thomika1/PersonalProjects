@@ -33,7 +33,7 @@ class SistemaGUI:
 
     def fechar_programa(self):
         # Salva as tabelas antes de fechar
-        self.aba1.salvar_tabelas()
+        #self.aba1.salvar_tabelas()
         self.root.destroy()
 
 class AbaBuySell:
@@ -257,6 +257,7 @@ class AbaBuySell:
                 self.table_option.updateModel(TableModel(self.table_junto[self.table_junto["Swap/Option"] == "option"]))
                 self.table_option.redraw()
 
+            self.salvar_tabelas()
             # Fecha a janela após adicionar o contrato
             janela_adicionar.destroy()
 
