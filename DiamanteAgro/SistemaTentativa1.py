@@ -210,7 +210,6 @@ class AbaBuySell:
         frame_table_mes2_option = tk.LabelFrame(frame_mes2,text='Option')
         frame_table_mes2_option.pack(expand=True, fill='both')
         
-        
     #função para abrir a janela com suas respectivas caracteristicas     
     def abrir_janela_adicionar(self):
         # Cria uma nova janela "top-level" que flutua sobre a principal
@@ -321,7 +320,7 @@ class AbaBuySell:
         else:
             print("Nenhum dado foi carregado; os arquivos CSV mensais podem não existir.")
             
-            
+                    
 class AbaPrecosMercado:
     def __init__(self, notebook):
         # Cria o frame da aba
