@@ -319,16 +319,41 @@ class AbaBuySell:
             self.table_option.redraw()
         else:
             print("Nenhum dado foi carregado; os arquivos CSV mensais podem não existir.")
-            
+       
                     
 class AbaPrecosMercado:
     def __init__(self, notebook):
         # Cria o frame da aba
         self.frame = ttk.Frame(notebook)
         # Configurações da aba Preços de Mercado
-        self.label = tk.Label(self.frame, text="Aba Preços de Mercado")
+        self.label = tk.Label(self.frame, text="Calculadora Futuro Simples")
         self.label.pack()
-        # Adicione aqui os widgets e funcionalidades específicas desta aba
+        
+        frame_calculadora = tk.Frame(self.frame)
+        frame_calculadora.pack(expand=True, fill='both')
+        
+        # Lista das labels para os botões
+        labels = [
+            "Underlying", "Trade Date", "Buy/Sell",
+            "Product Type", "Delivery Month", "Expiry Date",
+            "Strike", "Notional", "Sett. Price"
+        ]
+
+        entries = []
+        for i, label_text in enumerate(labels):
+            # Cria uma label para cada campo de entrada
+            label = tk.Label(frame_calculadora, text=label_text)
+            label.grid(row=i // 3 * 2, column=i % 3, padx=50, pady=5, sticky='w')  # Linha para labels
+            
+            # Cria um campo de entrada para cada label
+            entry = tk.Entry(frame_calculadora, width=20)
+            entry.grid(row=i // 3 * 2 + 1, column=i % 3, padx=50, pady=5)  # Linha abaixo da label para input
+            entries.append(entry)  # Armazena a referência para o campo de entrada
+        
+        
+        
+        
+        
 
 class AbaCalculoPL:
     def __init__(self, notebook):
