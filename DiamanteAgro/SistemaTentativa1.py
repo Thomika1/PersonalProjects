@@ -325,6 +325,7 @@ class AbaPrecosMercado:
     def __init__(self, notebook):
         # Cria o frame da aba
         self.frame = ttk.Frame(notebook)
+        
         # Configurações da aba Preços de Mercado
         self.label = tk.Label(self.frame, text="Calculadora Futuro Simples")
         self.label.pack()
@@ -339,7 +340,9 @@ class AbaPrecosMercado:
             "Strike", "Notional", "Sett. Price"
         ]
 
-        entries = []
+        # Dicionário para armazenar as entradas
+        self.entries = {}
+
         for i, label_text in enumerate(labels):
             # Cria uma label para cada campo de entrada
             label = tk.Label(frame_calculadora, text=label_text)
@@ -348,7 +351,27 @@ class AbaPrecosMercado:
             # Cria um campo de entrada para cada label
             entry = tk.Entry(frame_calculadora, width=20)
             entry.grid(row=i // 3 * 2 + 1, column=i % 3, padx=50, pady=5)  # Linha abaixo da label para input
-            entries.append(entry)  # Armazena a referência para o campo de entrada
+            
+            # Armazena a entrada no dicionário usando o nome do campo como chave
+            self.entries[label_text] = entry
+        
+        # Botão para armazenar os dados das entradas
+        self.save_button = tk.Button(self.frame, text="Armazenar Entradas", command=self.store_entries_data)
+        self.save_button.pack(pady = 20)
+
+        # Variável para armazenar os dados das entradas
+        self.stored_data = None
+
+    def store_entries_data(self):
+        # Coleta os dados das entradas e armazena em uma variável
+        label_botao = tk.Label(self.frame, text="Dados salvos!")
+        label_botao.pack(pady = 10)
+        self.stored_data = {label: entry.get() for label, entry in self.entries.items()}
+        print("Dados armazenados:", self.stored_data)  # Exibe os dados no console para verificação
+    
+    def calcula_b_s():
+        pass
+
         
         
         
