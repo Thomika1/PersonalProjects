@@ -369,8 +369,15 @@ class AbaPrecosMercado:
         self.stored_data = {label: entry.get() for label, entry in self.entries.items()}
         print("Dados armazenados:", self.stored_data)  # Exibe os dados no console para verificação
     
+    #product type é call put ou swap
+    
     def calcula_b_s():
-        pass
+        S = 0 #underlyng Price
+        K = 0  #Strike Price
+        T = 0 #Time to Expirantion
+        r = 0 #Risk free rate
+        vol = 0 #volatility (S)
+        
 
         
         
