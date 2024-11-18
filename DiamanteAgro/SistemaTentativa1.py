@@ -3,6 +3,12 @@ import tkinter as tk
 from tkinter import ttk
 from pandastable import Table, TableModel
 import os
+from math import log, e
+from scipy import stats
+from datetime import date
+import numpy as np
+from datetime import date, datetime
+
 
 class SistemaGUI:
     def __init__(self, root):
@@ -335,8 +341,8 @@ class AbaPrecosMercado:
         
         # Lista das labels para os botões
         labels = [
-            "Underlying", "Trade Date", "Buy/Sell",
-            "Product Type", "Delivery Month", "Expiry Date",
+            "Underlying", "Volatility", "Buy/Sell",
+            "Rate", "Delivery Month", "Expiry Date",
             "Strike", "Notional", "Sett. Price"
         ]
 
@@ -361,23 +367,50 @@ class AbaPrecosMercado:
 
         # Variável para armazenar os dados das entradas
         self.stored_data = None
+        
 
     def store_entries_data(self):
         # Coleta os dados das entradas e armazena em uma variável
-        label_botao = tk.Label(self.frame, text="Dados salvos!")
-        label_botao.pack(pady = 10)
+        #armazena os dados em um dictionary
         self.stored_data = {label: entry.get() for label, entry in self.entries.items()}
         print("Dados armazenados:", self.stored_data)  # Exibe os dados no console para verificação
+        
+        #converte o campo delivery month para data
+        delivery_month_str = self.stored_data["Delivery Month"]  #
+        delivery_month_date = datetime.strptime(delivery_month_str, "%d-%m-%Y").date()
+        
+        ##subtrai o delivery month pela dia de hoje
+        data = delivery_month_date - date.today()
+        time_in_float = data.days / 365.0
+        
+        #converte para float todos os tipos
+        stock_price = float(self.stored_data["Underlying"])
+        strike_price = float(self.stored_data["Strike"])
+        rate = float(self.stored_data["Rate"])
+        vol = float(self.stored_data["Volatility"])
+        
+        #de fato calcula e exibe o B&S
+        result = AbaPrecosMercado.calcula_b_s(stock_price=stock_price, strike_price=strike_price, rate=rate, time=time_in_float, vol=vol, dividend=0)
+        
+        label_botao = tk.Label(self.frame, text=result[0])
+        label_botao.pack(pady = 10)
+        
+        
+        
+        
+        
     
     #product type é call put ou swap
     
-    def calcula_b_s():
-        S = 0 #underlyng Price
-        K = 0  #Strike Price
-        T = 0 #Time to Expirantion
-        r = 0 #Risk free rate
-        vol = 0 #volatility (S)
+    def calcula_b_s(stock_price, strike_price, rate, time, vol, dividend = 0.0):
+
+        d1 = (log(stock_price/strike_price)+(rate-dividend+vol**2/2)*time)/(vol*time**.5)
+        d2 = d1 - vol*time**.5
         
+        call = stats.norm.cdf(d1) * stock_price*e**(-dividend*time)-stats.norm.cdf(d2)*strike_price*e**(-rate*time)
+        put = stats.norm.cdf(-d2)*strike_price*e**(-rate*time)-stats.norm.cdf(-d1)*stock_price*e**(-dividend*time)
+        
+        return [call, put]
 
         
         
@@ -397,5 +430,6 @@ class AbaCalculoPL:
 # Inicialização do sistema
 if __name__ == "__main__":
     root = tk.Tk()
+    
     sistema = SistemaGUI(root)
     root.mainloop()
