@@ -341,9 +341,9 @@ class AbaPrecosMercado:
         
         # Lista das labels para os botões
         labels = [
-            "Underlying", "Volatility", "Buy/Sell",
-            "Rate", "Delivery Month", "Expiry Date",
-            "Strike", "Notional", "Sett. Price"
+            "Strike", "Sett. Price", "Volatility",
+            "Expiry Date", "Delivery Month",
+            "Notional", "Buy/Sell"
         ]
 
         # Dicionário para armazenar as entradas
@@ -363,7 +363,7 @@ class AbaPrecosMercado:
         
         # Botão para armazenar os dados das entradas
         self.save_button = tk.Button(self.frame, text="Armazenar Entradas", command=self.store_entries_data)
-        self.save_button.pack(pady = 20)
+        self.save_button.pack(side=tk.BOTTOM, pady = 20)
 
         # Variável para armazenar os dados das entradas
         self.stored_data = None
@@ -373,10 +373,10 @@ class AbaPrecosMercado:
         # Coleta os dados das entradas e armazena em uma variável
         #armazena os dados em um dictionary
         self.stored_data = {label: entry.get() for label, entry in self.entries.items()}
-        print("Dados armazenados:", self.stored_data)  # Exibe os dados no console para verificação
+        #print("Dados armazenados:", self.stored_data)  # Exibe os dados no console para verificação
         
         #converte o campo delivery month para data
-        delivery_month_str = self.stored_data["Delivery Month"]  #
+        delivery_month_str = self.stored_data["Expiry Date"]  #
         delivery_month_date = datetime.strptime(delivery_month_str, "%d-%m-%Y").date()
         
         ##subtrai o delivery month pela dia de hoje
@@ -384,16 +384,22 @@ class AbaPrecosMercado:
         time_in_float = data.days / 365.0
         
         #converte para float todos os tipos
-        stock_price = float(self.stored_data["Underlying"])
+        stock_price = float(self.stored_data["Sett. Price"])
         strike_price = float(self.stored_data["Strike"])
-        rate = float(self.stored_data["Rate"])
         vol = float(self.stored_data["Volatility"])
         
         #de fato calcula e exibe o B&S
-        result = AbaPrecosMercado.calcula_b_s(stock_price=stock_price, strike_price=strike_price, rate=rate, time=time_in_float, vol=vol, dividend=0)
+        result = AbaPrecosMercado.calcula_b_s(stock_price=stock_price, strike_price=strike_price, rate=0, time=time_in_float, vol=vol, dividend=0)
         
-        label_botao = tk.Label(self.frame, text=result[0])
-        label_botao.pack(pady = 10)
+        if not hasattr(self, 'result_label'):
+            self.result_label = tk.Label(self.frame, text="")
+            self.result_label.pack(pady=10)
+    
+        
+
+        # Atualiza o texto da label existente
+        self.result_label.config(text=result[0])
+        
         
         
         
@@ -402,7 +408,7 @@ class AbaPrecosMercado:
     
     #product type é call put ou swap
     
-    def calcula_b_s(stock_price, strike_price, rate, time, vol, dividend = 0.0):
+    def calcula_b_s(stock_price, strike_price, time, vol, dividend = 0.0, rate=0.0):
 
         d1 = (log(stock_price/strike_price)+(rate-dividend+vol**2/2)*time)/(vol*time**.5)
         d2 = d1 - vol*time**.5
