@@ -392,7 +392,7 @@ class AbaPrecosMercado:
         result = AbaPrecosMercado.calcula_b_s(stock_price=stock_price, strike_price=strike_price, rate=0, time=time_in_float, vol=vol, dividend=0)
         
         if not hasattr(self, 'result_label'):
-            self.result_label = tk.Label(self.frame, text="")
+            self.result_label = tk.Label(self.frame, text="", font=("Helvetica", 16, "bold italic"))
             self.result_label.pack(pady=10)
     
         
