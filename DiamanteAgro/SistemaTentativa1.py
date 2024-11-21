@@ -399,14 +399,20 @@ class AbaPrecosMercado:
 
         # Atualiza o texto da label existente
         self.result_label.config(text=result[0])
-        
-        
-        
-        
-        
-        
     
     #product type é call put ou swap
+    
+        # S: Preço atual do ativo (ação/subjacente) stock_price
+        # 𝐾
+        # K: Preço de exercício (strike price) strike_price
+        # 𝑇
+        # T: Tempo até o vencimento, geralmente em anos (em fração de ano: dias/365) Tempo
+        # 𝜎
+        # σ: Volatilidade implícita anual do ativo vol
+        # 𝑟
+        # r: Taxa de juros livre de risco rate
+    
+    
     
     def calcula_b_s(stock_price, strike_price, time, vol, dividend = 0.0, rate=0.0):
 
@@ -417,6 +423,48 @@ class AbaPrecosMercado:
         put = stats.norm.cdf(-d2)*strike_price*e**(-rate*time)-stats.norm.cdf(-d1)*stock_price*e**(-dividend*time)
         
         return [call, put]
+    
+    def delta_calc(d1): # calcula delta para call e para put
+        "Calcula delta"
+        
+        delta_call = stats.norm.cdf(d1,0,1)
+        
+        delta_put = -stats.norm.cdf(-d1,0,1)
+         
+        return [delta_call, delta_put]
+    
+    def gamma_calc(d1, stock_price, vol, time): # calcula gamma 
+        "Calcula gamma"
+        
+        gamma = stats.norm.pdf(d1,0,1)/(stock_price*vol*np.sqrt(time))
+        
+        return gamma
+        
+    def vega_calc(d1, stock_price, time):
+        "calcula vega"
+        
+        vega = stock_price*stats.norm.pdf(d1,0,1)*np.sqrt(time)
+        
+        return vega*0.01
+        
+    def theta_calc(d1, d2, stock_price, strike_price, time, rate, vol):
+        "calcula theta"
+        
+        theta_call = -stock_price*stats.norm.pdf(d1,0,1)*vol/(2*np.sqrt(time)) - rate*stock_price*stats.exp(-rate*time)*stats.norm.cdf(d2,0,1)
+        
+        theta_put = -stock_price*stats.norm.pdf(d1,0,1)*vol/(2*np.sqrt(time)) + rate*stock_price*stats.exp(-rate*time)*stats.norm.cdf(-d2,0,1)
+        
+        return [theta_call/365, theta_put/365] 
+    
+    def roh_calc(d2, stock_price, time, rate):
+        "calcula roh"
+        
+        rho_call = stock_price*time*stats.exp(-rate*time)*stats.norm.cdf(d2,0,1)
+        
+        rho_put = -stock_price*time*stats.exp(-rate*time)*stats.norm.cdf(-d2,0,1)
+        
+        return [rho_call*0.01, rho_put*0.01]
+    
 
         
         
