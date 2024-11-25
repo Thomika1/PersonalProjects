@@ -1,0 +1,1 @@
+Projeto para criar um gerenciador de posições do mercado de commodities, especificamente da bolsa de café, que conta com uma calculadora de gregas e preço futuro para opções.
