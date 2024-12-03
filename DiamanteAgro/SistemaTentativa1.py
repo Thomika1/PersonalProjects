@@ -156,15 +156,13 @@ class AbaBuySell:
             
             caminho_arquivo_mes1 = os.path.join(diretorio_atual, f"table_{mes1_num}.csv")
             caminho_arquivo_mes2 = os.path.join(diretorio_atual, f"table_{mes2_num}.csv")
-            
-            
+    
             
             # Carregar os arquivos CSV correspondentes
             df_mes1 = pd.read_csv(caminho_arquivo_mes1)
             df_mes2 = pd.read_csv(caminho_arquivo_mes2)
             
-            
-            
+                
             #POSSO USAR SELF_TABLE_JUNTO PARA QUE ATUALIZE SEMPRE 
             
             table_p_concat_mes1 = self.table[self.table["Delivery Month"] == mes1]
@@ -184,7 +182,6 @@ class AbaBuySell:
             df_mes2_option = df_mes2_concat[df_mes2["Swap/Option"] == "option"]
             
             
-            
             # Exibir as tabelas em frames diferentes para cada categoria e mês
             table_mes1_swap = Table(frame_table_mes1_swap, dataframe=df_mes1_swap, showtoolbar=True, showstatusbar=True)
             table_mes1_option = Table(frame_table_mes1_option, dataframe=df_mes1_option, showtoolbar=True, showstatusbar=True)
@@ -197,7 +194,6 @@ class AbaBuySell:
             table_mes2_swap.show()
             table_mes2_option.show()
         
-
         
         #cria botao para gerar as tabelas filtradas
         botao_exibe_tabelas_mes = tk.Button(frame_botao, text = 'Exibir Tabelas',command=exibe_tabelas)
@@ -331,9 +327,11 @@ class AbaPrecosMercado:
     def __init__(self, notebook):
         # Cria o frame da aba
         self.frame = ttk.Frame(notebook)
+
+        entradas = ["call","put"] #entradas para a call e a put
         
         # Configurações da aba Preços de Mercado
-        self.label = tk.Label(self.frame, text="Calculadora Futuro Simples")
+        self.label = tk.Label(self.frame, text="Calculadora de Opções")
         self.label.pack()
         
         frame_calculadora = tk.Frame(self.frame)
@@ -361,6 +359,9 @@ class AbaPrecosMercado:
             # Armazena a entrada no dicionário usando o nome do campo como chave
             self.entries[label_text] = entry
         
+        self.box_call_put = ttk.Combobox(frame_calculadora, values=entradas, width=19)
+        self.box_call_put.grid(row = 7 // 3*2+1, column=7%3, padx=50, pady=5)
+
         # Botão para armazenar os dados das entradas
         self.save_button = tk.Button(self.frame, text="Armazenar Entradas", command=self.store_entries_data)
         self.save_button.pack(side=tk.BOTTOM, pady = 20)
@@ -374,6 +375,8 @@ class AbaPrecosMercado:
         self.stored_data = {label: entry.get() for label, entry in self.entries.items()}
         #print("Dados armazenados:", self.stored_data)  # Exibe os dados no console para verificação
         
+        self.stored_data["Call/Put"] = self.box_call_put.get() #adiciona a coluna call ou put no dictionary e pega o resultado4
+
         #converte o campo delivery month para data
         delivery_month_str = self.stored_data["Expiry Date"]  #
         delivery_month_date = datetime.strptime(delivery_month_str, "%d-%m-%Y").date()
@@ -388,26 +391,35 @@ class AbaPrecosMercado:
         vol = float(self.stored_data["Volatility"])
         
         #de fato calcula e exibe o B&S
-        result = AbaPrecosMercado.calcula_b_s(stock_price=stock_price, strike_price=strike_price, rate=0, time=time_in_float, vol=vol, dividend=0)
-        delta = self.delta_calc(result[2])
-        gamma = self.gamma_calc(d1=result[2], stock_price=stock_price, vol=vol, time=time_in_float)
-        vega = self.vega_calc(d1=result[2], stock_price=stock_price, time=time_in_float)
-        theta = self.theta_calc(d1 = result[2], d2 = result[3], stock_price=stock_price, strike_price=strike_price, time=time_in_float, rate=0, vol=vol) 
-        rho = self.roh_calc(d2=result[3], strike_price=strike_price, time=time_in_float, rate=0)
+        premium = AbaPrecosMercado.calcula_b_s(stock_price=stock_price, strike_price=strike_price, rate=0, time=time_in_float, vol=vol, dividend=0)
+        delta = self.delta_calc(premium[2])
+        gamma = self.gamma_calc(d1=premium[2], stock_price=stock_price, vol=vol, time=time_in_float)
+        vega = self.vega_calc(d1=premium[2], stock_price=stock_price, time=time_in_float)
+        theta = self.theta_calc(d1 = premium[2], d2 = premium[3], stock_price=stock_price, strike_price=strike_price, time=time_in_float, rate=0, vol=vol) 
+        rho = self.roh_calc(d2=premium[3], strike_price=strike_price, time=time_in_float, rate=0)
         
         if not hasattr(self, 'result_label'):
             self.result_label = tk.Label(self.frame, text="", font=("Helvetica", 16, "bold italic"))
             self.result_label.pack(pady=10)
     
         # Atualiza o texto da label existente
-        self.result_label.config(text="B&S: " + str(result[0]) + "\n" +
-                                "Delta: " + str(delta[0]) + "\n" +
-                                "Gamma: " + str(gamma) + "\n" +
-                                "Vega: " + str(vega) + "\n" +
-                                "Theta: " + str(theta[0]) + "\n" +
-                                "Rho: " + str(rho[0]))
+        if self.stored_data["Call/Put"] == "call":
 
+            self.result_label.config(text="Premium: " + str(premium[0]) + "\n" +
+                                     "Delta: " + str(delta[0]) + "\n" +
+                                     "Gamma: " + str(gamma) + "\n" +
+                                     "Vega: " + str(vega) + "\n" +
+                                     "Theta: " + str(theta[0]) + "\n" +
+                                     "Rho: " + str(rho[0]))
+        else:
+            self.result_label.config(text="Premium: " + str(premium[1]) + "\n" +
+                                     "Delta: " + str(delta[1]) + "\n" +
+                                     "Gamma: " + str(gamma) + "\n" +
+                                     "Vega: " + str(vega) + "\n" +
+                                     "Theta: " + str(theta[1]) + "\n" +
+                                     "Rho: " + str(rho[1]))       
     
+
     #product type é call put ou swap
     
         # S: Preço atual do ativo (ação/subjacente) stock_price
@@ -419,7 +431,6 @@ class AbaPrecosMercado:
         # σ: Volatilidade implícita anual do ativo vol
         # 𝑟
         # r: Taxa de juros livre de risco rate
-    
     
     def calcula_b_s(stock_price, strike_price, time, vol, dividend = 0.0, rate=0.0):
 
