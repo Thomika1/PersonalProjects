@@ -329,6 +329,7 @@ class AbaPrecosMercado:
         self.frame = ttk.Frame(notebook)
 
         entradas = ["call","put"] #entradas para a call e a put
+        entradas_buy_sell = ["buy","sell"] # entradas para o campo 
         
         # Configurações da aba Preços de Mercado
         self.label = tk.Label(self.frame, text="Calculadora de Opções")
@@ -341,7 +342,7 @@ class AbaPrecosMercado:
         labels = [
             "Strike", "Sett. Price", "Volatility",
             "Expiry Date", "Delivery Month",
-            "Notional", "Buy/Sell"
+            "Notional"
         ]
 
         # Dicionário para armazenar as entradas
@@ -359,12 +360,25 @@ class AbaPrecosMercado:
             # Armazena a entrada no dicionário usando o nome do campo como chave
             self.entries[label_text] = entry
         
+        label = tk.Label(frame_calculadora, text="Call ou Put")
+        label.grid(row=6 // 3 * 2, column=6 % 3, padx=50, pady=5, sticky='w')  # Linha para labels
+            
         self.box_call_put = ttk.Combobox(frame_calculadora, values=entradas, width=19)
-        self.box_call_put.grid(row = 7 // 3*2+1, column=7%3, padx=50, pady=5)
+        self.box_call_put.grid(row = 6 // 3*2+1, column=6%3, padx=50, pady=5)
+
+        label = tk.Label(frame_calculadora, text="Buy ou Sell")
+        label.grid(row=7 // 3 * 2, column=7 % 3, padx=50, pady=5, sticky='w')  # Linha para labels
+            
+        self.box_buy_sell = ttk.Combobox(frame_calculadora, values=entradas_buy_sell, width=19)
+        self.box_buy_sell.grid(row = 7 // 3*2+1, column=7%3, padx=50, pady=5)
+
 
         # Botão para armazenar os dados das entradas
         self.save_button = tk.Button(self.frame, text="Armazenar Entradas", command=self.store_entries_data)
         self.save_button.pack(side=tk.BOTTOM, pady = 20)
+
+        
+
 
         # Variável para armazenar os dados das entradas
         self.stored_data = None
@@ -376,6 +390,8 @@ class AbaPrecosMercado:
         #print("Dados armazenados:", self.stored_data)  # Exibe os dados no console para verificação
         
         self.stored_data["Call/Put"] = self.box_call_put.get() #adiciona a coluna call ou put no dictionary e pega o resultado4
+        self.stored_data["Buy/Sell"] = self.box_buy_sell.get()
+
 
         #converte o campo delivery month para data
         delivery_month_str = self.stored_data["Expiry Date"]  #
@@ -402,23 +418,38 @@ class AbaPrecosMercado:
             self.result_label = tk.Label(self.frame, text="", font=("Helvetica", 16, "bold italic"))
             self.result_label.pack(pady=10)
     
-        # Atualiza o texto da label existente
-        if self.stored_data["Call/Put"] == "call":
 
-            self.result_label.config(text="Premium: " + str(premium[0]) + "\n" +
-                                     "Delta: " + str(delta[0]) + "\n" +
-                                     "Gamma: " + str(gamma) + "\n" +
-                                     "Vega: " + str(vega) + "\n" +
-                                     "Theta: " + str(theta[0]) + "\n" +
-                                     "Rho: " + str(rho[0]))
+        # Atualiza o texto da label existente e diferencia call e put buy ou sell
+        if self.stored_data["Call/Put"] == "call":
+            if self.stored_data["Buy/Sell"] == "buy":
+                self.result_label.config(text="Premium: " + str(premium[0]) + "\n" +
+                                        "Delta: " + str(delta[0]) + "\n" +
+                                        "Gamma: " + str(gamma) + "\n" +
+                                        "Vega: " + str(vega) + "\n" +
+                                        "Theta: " + str(theta[0]) + "\n" +
+                                        "Rho: " + str(rho[0]))
+            else:
+                self.result_label.config(text="Premium: " + str(premium[0]) + "\n" +
+                                        "Delta: " + str(-delta[0]) + "\n" +
+                                        "Gamma: " + str(-gamma) + "\n" +
+                                        "Vega: " + str(vega) + "\n" +
+                                        "Theta: " + str(-theta[0]) + "\n" +
+                                        "Rho: " + str(rho[0]))
         else:
-            self.result_label.config(text="Premium: " + str(premium[1]) + "\n" +
-                                     "Delta: " + str(delta[1]) + "\n" +
-                                     "Gamma: " + str(gamma) + "\n" +
-                                     "Vega: " + str(vega) + "\n" +
-                                     "Theta: " + str(theta[1]) + "\n" +
-                                     "Rho: " + str(rho[1]))       
-    
+            if self.stored_data["Buy/Sell"] == "buy":
+                self.result_label.config(text="Premium: " + str(premium[1]) + "\n" +
+                                        "Delta: " + str(delta[1]) + "\n" +
+                                        "Gamma: " + str(gamma) + "\n" +
+                                        "Vega: " + str(vega) + "\n" +
+                                        "Theta: " + str(theta[1]) + "\n" +
+                                        "Rho: " + str(rho[1]))       
+            else:
+                self.result_label.config(text="Premium: " + str(premium[1]) + "\n" +
+                                        "Delta: " + str(-delta[1]) + "\n" +
+                                        "Gamma: " + str(-gamma) + "\n" +
+                                        "Vega: " + str(-vega) + "\n" +
+                                        "Theta: " + str(-theta[1]) + "\n" +
+                                        "Rho: " + str(rho[1])) 
 
     #product type é call put ou swap
     
