@@ -348,29 +348,45 @@ class AbaPrecosMercado:
         # Dicionário para armazenar as entradas
         self.entries = {}
 
-        for i, label_text in enumerate(labels):
-            # Cria uma label para cada campo de entrada
-            label = tk.Label(frame_calculadora, text=label_text)
-            label.grid(row=i // 3 * 2, column=i % 3, padx=50, pady=5, sticky='w')  # Linha para labels
-            
-            # Cria um campo de entrada para cada label
-            entry = tk.Entry(frame_calculadora, width=20)
-            entry.grid(row=i // 3 * 2 + 1, column=i % 3, padx=50, pady=5)  # Linha abaixo da label para input
-            
-            # Armazena a entrada no dicionário usando o nome do campo como chave
-            self.entries[label_text] = entry
-        
-        label = tk.Label(frame_calculadora, text="Call ou Put")
-        label.grid(row=6 // 3 * 2, column=6 % 3, padx=50, pady=5, sticky='w')  # Linha para labels
-            
-        self.box_call_put = ttk.Combobox(frame_calculadora, values=entradas, width=19)
-        self.box_call_put.grid(row = 6 // 3*2+1, column=6%3, padx=50, pady=5)
+        subframe = tk.Frame(frame_calculadora)
+        subframe.pack(expand=True, pady=20)  # Centraliza o conteúdo do subframe dentro do frame_calculadora
 
-        label = tk.Label(frame_calculadora, text="Buy ou Sell")
-        label.grid(row=7 // 3 * 2, column=7 % 3, padx=50, pady=5, sticky='w')  # Linha para labels
+        # Adiciona os campos de entrada com labels acima
+        for i, label_text in enumerate(labels):
+            # Cria um sub-frame para cada campo (organizado verticalmente)
+            field_frame = tk.Frame(subframe)
+            field_frame.grid(row=i // 3, column=i % 3, padx=20, pady=20, sticky="n")  # Divide em linhas/colunas
             
-        self.box_buy_sell = ttk.Combobox(frame_calculadora, values=entradas_buy_sell, width=19)
-        self.box_buy_sell.grid(row = 7 // 3*2+1, column=7%3, padx=50, pady=5)
+            # Cria uma label e coloca acima do campo
+            label = tk.Label(field_frame, text=label_text)
+            label.pack()  # Centraliza a label acima
+            
+            # Cria o campo de entrada e coloca abaixo
+            entry = tk.Entry(field_frame, width=20)
+            entry.pack()  # Centraliza o campo abaixo da label
+            
+            # Armazena a entrada no dicionário
+            self.entries[label_text] = entry
+
+        # Adiciona o campo "Call ou Put"
+        field_frame_call_put = tk.Frame(subframe)
+        field_frame_call_put.grid(row=len(labels) // 3, column=0, padx=20, pady=20, sticky="n")
+
+        label_call_put = tk.Label(field_frame_call_put, text="Call ou Put")
+        label_call_put.pack()
+
+        self.box_call_put = ttk.Combobox(field_frame_call_put, values=entradas, width=19)
+        self.box_call_put.pack()
+
+        # Adiciona o campo "Buy ou Sell"
+        field_frame_buy_sell = tk.Frame(subframe)
+        field_frame_buy_sell.grid(row=len(labels) // 3, column=1, padx=20, pady=20, sticky="n")
+
+        label_buy_sell = tk.Label(field_frame_buy_sell, text="Buy ou Sell")
+        label_buy_sell.pack()
+
+        self.box_buy_sell = ttk.Combobox(field_frame_buy_sell, values=entradas_buy_sell, width=19)
+        self.box_buy_sell.pack()
 
 
         # Botão para armazenar os dados das entradas
