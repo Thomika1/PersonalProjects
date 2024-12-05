@@ -377,9 +377,6 @@ class AbaPrecosMercado:
         self.save_button = tk.Button(self.frame, text="Armazenar Entradas", command=self.store_entries_data)
         self.save_button.pack(side=tk.BOTTOM, pady = 20)
 
-        
-
-
         # Variável para armazenar os dados das entradas
         self.stored_data = None
         
@@ -422,34 +419,34 @@ class AbaPrecosMercado:
         # Atualiza o texto da label existente e diferencia call e put buy ou sell
         if self.stored_data["Call/Put"] == "call":
             if self.stored_data["Buy/Sell"] == "buy":
-                self.result_label.config(text="Premium: " + str(premium[0]) + "\n" +
-                                        "Delta: " + str(delta[0]) + "\n" +
-                                        "Gamma: " + str(gamma) + "\n" +
-                                        "Vega: " + str(vega) + "\n" +
-                                        "Theta: " + str(theta[0]) + "\n" +
-                                        "Rho: " + str(rho[0]))
+                self.result_label.config(text=f"Premium: {premium[0]:.4f}\n" +
+                                        f"Delta: {delta[0]:.4f}\n" +
+                                        f"Gamma: {gamma:.4f}\n" +
+                                        f"Vega: {vega:.4f}\n" +
+                                        f"Theta: {theta[0]:.4f}\n" +
+                                        f"Rho: {rho[0]:.4f}")
             else:
-                self.result_label.config(text="Premium: " + str(premium[0]) + "\n" +
-                                        "Delta: " + str(-delta[0]) + "\n" +
-                                        "Gamma: " + str(-gamma) + "\n" +
-                                        "Vega: " + str(vega) + "\n" +
-                                        "Theta: " + str(-theta[0]) + "\n" +
-                                        "Rho: " + str(rho[0]))
+                self.result_label.config(text=f"Premium: {premium[0]:.4f}\n" +
+                                        f"Delta: {-delta[0]:.4f}\n" +
+                                        f"Gamma: {-gamma:.4f}\n" +
+                                        f"Vega: {vega:.4f}\n" +
+                                        f"Theta: {-theta[0]:.4f}\n" +
+                                        f"Rho: {rho[0]:.4f}")
         else:
             if self.stored_data["Buy/Sell"] == "buy":
-                self.result_label.config(text="Premium: " + str(premium[1]) + "\n" +
-                                        "Delta: " + str(delta[1]) + "\n" +
-                                        "Gamma: " + str(gamma) + "\n" +
-                                        "Vega: " + str(vega) + "\n" +
-                                        "Theta: " + str(theta[1]) + "\n" +
-                                        "Rho: " + str(rho[1]))       
+                self.result_label.config(text=f"Premium: {premium[1]:.4f}\n" +
+                                        f"Delta: {delta[1]:.4f}\n" +
+                                        f"Gamma: {gamma:.4f}\n" +
+                                        f"Vega: {vega:.4f}\n" +
+                                        f"Theta: {theta[1]:.4f}\n" +
+                                        f"Rho: {rho[1]:.4f}")       
             else:
-                self.result_label.config(text="Premium: " + str(premium[1]) + "\n" +
-                                        "Delta: " + str(-delta[1]) + "\n" +
-                                        "Gamma: " + str(-gamma) + "\n" +
-                                        "Vega: " + str(-vega) + "\n" +
-                                        "Theta: " + str(-theta[1]) + "\n" +
-                                        "Rho: " + str(rho[1])) 
+                self.result_label.config(text=f"Premium: {premium[1]:.4f}\n" +
+                                        f"Delta: {-delta[1]:.4f}\n" +
+                                        f"Gamma: {-gamma:.4f}\n" +
+                                        f"Vega: {-vega:.4f}\n" +
+                                        f"Theta: {-theta[1]:.4f}\n" +
+                                        f"Rho: {rho[1]:.4f}") 
 
     #product type é call put ou swap
     
