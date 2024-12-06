@@ -9,7 +9,6 @@ from datetime import date
 import numpy as np
 from datetime import date, datetime
 
-
 class SistemaGUI:
     def __init__(self, root):
         # Configurações gerais da interface principal
@@ -321,8 +320,7 @@ class AbaBuySell:
             self.table_option.redraw()
         else:
             print("Nenhum dado foi carregado; os arquivos CSV mensais podem não existir.")
-       
-                    
+                         
 class AbaPrecosMercado:
     def __init__(self, notebook):
         # Cria o frame da aba
@@ -400,7 +398,6 @@ class AbaPrecosMercado:
         self.box_del_date = ttk.Combobox(field_frame_del_date, values=entradas_del_date, width=19)
         self.box_del_date.pack()
 
-
         # Botão para armazenar os dados das entradas
         self.save_button = tk.Button(self.frame, text="Armazenar Entradas", command=self.store_entries_data)
         self.save_button.pack(side=tk.BOTTOM, pady = 20)
@@ -437,15 +434,11 @@ class AbaPrecosMercado:
         vega = self.vega_calc(d1=premium[2], stock_price=stock_price, time=time_in_float)
         theta = self.theta_calc(d1 = premium[2], d2 = premium[3], stock_price=stock_price, strike_price=strike_price, time=time_in_float, rate=0, vol=vol) 
         rho = self.roh_calc(d2=premium[3], strike_price=strike_price, time=time_in_float, rate=0)
-        
-        #teste 
-
 
         #verifica se o frame ja tem uma string
         if not hasattr(self, 'result_label'):
             self.result_label = tk.Label(self.frame, text="", font=("Helvetica", 16, "bold italic"))
             self.result_label.pack(pady=10)
-
 
         # Atualiza o texto da label existente e diferencia call e put buy ou sell
         if self.stored_data["Call/Put"] == "call":
