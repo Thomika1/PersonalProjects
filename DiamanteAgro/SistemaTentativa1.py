@@ -330,6 +330,7 @@ class AbaPrecosMercado:
 
         entradas = ["call","put"] #entradas para a call e a put
         entradas_buy_sell = ["buy","sell"] # entradas para o campo 
+        entradas_del_date = [""] # entradas de codigo de datas
         
         # Configurações da aba Preços de Mercado
         self.label = tk.Label(self.frame, text="Calculadora de Opções")
@@ -341,8 +342,7 @@ class AbaPrecosMercado:
         # Lista das labels para os botões
         labels = [
             "Strike", "Sett. Price", "Volatility",
-            "Expiry Date", "Delivery Month",
-            "Notional"
+            "Expiry Date", "Notional"
         ]
 
         # Dicionário para armazenar as entradas
@@ -368,9 +368,11 @@ class AbaPrecosMercado:
             # Armazena a entrada no dicionário
             self.entries[label_text] = entry
 
+        new_row = (len(labels) + 2) // 3
+
         # Adiciona o campo "Call ou Put"
         field_frame_call_put = tk.Frame(subframe)
-        field_frame_call_put.grid(row=len(labels) // 3, column=0, padx=20, pady=20, sticky="n")
+        field_frame_call_put.grid(row=new_row-1, column=2, padx=20, pady=20, sticky="n")
 
         label_call_put = tk.Label(field_frame_call_put, text="Call ou Put")
         label_call_put.pack()
@@ -380,13 +382,23 @@ class AbaPrecosMercado:
 
         # Adiciona o campo "Buy ou Sell"
         field_frame_buy_sell = tk.Frame(subframe)
-        field_frame_buy_sell.grid(row=len(labels) // 3, column=1, padx=20, pady=20, sticky="n")
+        field_frame_buy_sell.grid(row=new_row, column=0, padx=20, pady=20, sticky="n")
 
         label_buy_sell = tk.Label(field_frame_buy_sell, text="Buy ou Sell")
         label_buy_sell.pack()
 
         self.box_buy_sell = ttk.Combobox(field_frame_buy_sell, values=entradas_buy_sell, width=19)
         self.box_buy_sell.pack()
+
+        # Adicona o ccampo del date como combobox
+        field_frame_del_date = tk.Frame(subframe)
+        field_frame_del_date.grid (row=new_row, column=1, padx=20, pady=20, sticky="n")
+        
+        label_del_date = tk.Label(field_frame_del_date, text="Delivery Date")
+        label_del_date.pack()
+
+        self.box_del_date = ttk.Combobox(field_frame_del_date, values=entradas_del_date, width=19)
+        self.box_del_date.pack()
 
 
         # Botão para armazenar os dados das entradas
@@ -404,7 +416,6 @@ class AbaPrecosMercado:
         
         self.stored_data["Call/Put"] = self.box_call_put.get() #adiciona a coluna call ou put no dictionary e pega o resultado4
         self.stored_data["Buy/Sell"] = self.box_buy_sell.get()
-
 
         #converte o campo delivery month para data
         delivery_month_str = self.stored_data["Expiry Date"]  #
@@ -427,10 +438,14 @@ class AbaPrecosMercado:
         theta = self.theta_calc(d1 = premium[2], d2 = premium[3], stock_price=stock_price, strike_price=strike_price, time=time_in_float, rate=0, vol=vol) 
         rho = self.roh_calc(d2=premium[3], strike_price=strike_price, time=time_in_float, rate=0)
         
+        #teste 
+
+
+        #verifica se o frame ja tem uma string
         if not hasattr(self, 'result_label'):
             self.result_label = tk.Label(self.frame, text="", font=("Helvetica", 16, "bold italic"))
             self.result_label.pack(pady=10)
-    
+
 
         # Atualiza o texto da label existente e diferencia call e put buy ou sell
         if self.stored_data["Call/Put"] == "call":
@@ -465,7 +480,6 @@ class AbaPrecosMercado:
                                         f"Rho: {rho[1]:.4f}") 
 
     #product type é call put ou swap
-    
         # S: Preço atual do ativo (ação/subjacente) stock_price
         # 𝐾
         # K: Preço de exercício (strike price) strike_price
@@ -526,8 +540,6 @@ class AbaPrecosMercado:
         rho_put = -strike_price*time*np.exp(-rate*time)*stats.norm.cdf(-d2,0,1)
         
         return [rho_call*0.01, rho_put*0.01]
-
-
 
 class AbaCalculoPL:
     def __init__(self, notebook):
