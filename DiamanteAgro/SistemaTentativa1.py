@@ -328,7 +328,22 @@ class AbaPrecosMercado:
 
         entradas = ["call","put"] #entradas para a call e a put
         entradas_buy_sell = ["buy","sell"] # entradas para o campo 
-        entradas_del_date = [""] # entradas de codigo de datas
+        entradas_del_date = [
+                            ("KCH5", "12-02-2025"),
+                            ("KCK5", "11-04-2025"),
+                            ("KCN5", "12-06-2025"),
+                            ("KCU5", "08-08-2025"),
+                            ("KCZ5", "12-11-2025"),
+                            ("KCH6", "11-02-2026"),
+                            ("KCK6", "10-04-2026"),
+                            ("KCN6", "12-06-2026"),
+                            ("KCU6", "14-08-2026"),
+                            ("KCZ6", "12-11-2026"),
+                            ("KCH7", "10-02-2027"),
+                            ("KCK7", "09-04-2027"),
+                            ("KCN7", "11-06-2027"),
+                            ("KCU7", "13-08-2027")
+                            ]# entradas de codigo de datas
         
         # Configurações da aba Preços de Mercado
         self.label = tk.Label(self.frame, text="Calculadora de Opções")
@@ -340,7 +355,7 @@ class AbaPrecosMercado:
         # Lista das labels para os botões
         labels = [
             "Strike", "Sett. Price", "Volatility",
-            "Expiry Date", "Notional"
+            "Expire Date", "Notional"
         ]
 
         # Dicionário para armazenar as entradas
@@ -398,6 +413,15 @@ class AbaPrecosMercado:
         self.box_del_date = ttk.Combobox(field_frame_del_date, values=entradas_del_date, width=19)
         self.box_del_date.pack()
 
+        def atualizar_entry(event):
+            selecionado = self.box_del_date.get().split()
+            entry = self.entries["Expire Date"]
+
+            entry.delete(0, tk.END)
+            entry.insert(0, selecionado[1])
+
+        self.box_del_date.bind("<<ComboboxSelected>>", atualizar_entry)
+
         # Botão para armazenar os dados das entradas
         self.save_button = tk.Button(self.frame, text="Armazenar Entradas", command=self.store_entries_data)
         self.save_button.pack(side=tk.BOTTOM, pady = 20)
@@ -407,15 +431,27 @@ class AbaPrecosMercado:
         
     def store_entries_data(self):
         # Coleta os dados das entradas e armazena em uma variável
-        #armazena os dados em um dictionary
+        # armazena os dados em um dictionary
         self.stored_data = {label: entry.get() for label, entry in self.entries.items()}
-        #print("Dados armazenados:", self.stored_data)  # Exibe os dados no console para verificação
+        # print("Dados armazenados:", self.stored_data)  # Exibe os dados no console para verificação
         
         self.stored_data["Call/Put"] = self.box_call_put.get() #adiciona a coluna call ou put no dictionary e pega o resultado4
         self.stored_data["Buy/Sell"] = self.box_buy_sell.get()
+        self.stored_data["Delivery Date"] = self.box_del_date.get()
+
+        # ajusta o input com split e forma uma tupla com o valor 0 sendo o codigo e valor 1 sendo a data
+        del_date_split = self.stored_data["Delivery Date"].split()
+         
+        # exibe o delivery date no campo de entrada do expire date
+        exp_date_config = self.entries["Expire Date"]
+        exp_date_config.delete(0, tk.END)
+        exp_date_config.insert(0, del_date_split[1])
+
+        #sobrescreve o expire date com o delivery date por codigo
+        self.stored_data["Expire Date"] = del_date_split[1]
 
         #converte o campo delivery month para data
-        delivery_month_str = self.stored_data["Expiry Date"]  #
+        delivery_month_str = self.stored_data["Expire Date"]  #
         delivery_month_date = datetime.strptime(delivery_month_str, "%d-%m-%Y").date()
         
         ##subtrai o delivery month pela dia de hoje
