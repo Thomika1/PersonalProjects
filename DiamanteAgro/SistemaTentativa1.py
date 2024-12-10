@@ -9,6 +9,8 @@ from datetime import date
 import numpy as np
 from datetime import date, datetime
 
+pd.set_option('future.no_silent_downcasting', True)
+
 class SistemaGUI:
     def __init__(self, root):
         # Configurações gerais da interface principal
@@ -412,6 +414,9 @@ class AbaPrecosMercado:
 
         self.box_del_date = ttk.Combobox(field_frame_del_date, values=entradas_del_date, width=19)
         self.box_del_date.pack()
+
+        style = ttk.Style()
+        style.configure("TCombobox", arrowsize=25)
 
         def atualizar_entry(event):
             selecionado = self.box_del_date.get().split()
