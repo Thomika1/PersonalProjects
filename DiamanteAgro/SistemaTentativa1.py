@@ -224,20 +224,23 @@ class AbaBuySell:
         
         # Loop para criar labels e entradas para cada coluna da tabela
         for coluna in self.columns:
-            # Cria um frame para organizar cada label e entrada
-            frame_linha = tk.Frame(janela_adicionar)
-            frame_linha.pack(fill="x", padx=5, pady=2)
+            if coluna in ["Sett. Price", "Delta", "MTM (Eq USD)"]:
+                continue  # Pula para a próxima iteração, ignorando as colunas especificadas
+            else:
+                # Cria um frame para organizar cada label e entrada
+                frame_linha = tk.Frame(janela_adicionar)
+                frame_linha.pack(fill="x", padx=5, pady=2)
 
-            # Label para a coluna
-            label = tk.Label(frame_linha, text=coluna, width=20, anchor="w")
-            label.pack(side="left")
+                # Label para a coluna
+                label = tk.Label(frame_linha, text=coluna, width=20, anchor="w")
+                label.pack(side="left")
 
-            # Campo de entrada para a coluna
-            entrada = tk.Entry(frame_linha)
-            entrada.pack(side="left", fill="x", expand=True)
+                # Campo de entrada para a coluna
+                entrada = tk.Entry(frame_linha)
+                entrada.pack(side="left", fill="x", expand=True)
 
-            # Armazena a entrada no dicionário
-            entradas[coluna] = entrada
+                # Armazena a entrada no dicionário
+                entradas[coluna] = entrada
 
         # Função interna para capturar os dados e adicionar à tabela
         def adicionar_contrato():
