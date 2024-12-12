@@ -1,5 +1,0 @@
-Trade No.,Swap/Option,Underlying,Trade Date,Buy/Sell,Product Type,Ccy,Delivery Month,Expire Date,Strike,Notional,Long,Short,Sett. Price,Delta,Premium (Eq USD),MTM (Eq USD)
-b,swap,b,b,b,y,y,7,y,y,y,y,y,y,y,y,y
-m,option,m,m,m,m,m,7,m,m,m,m,m,m,m,m,m
-p,option,p,p,p,p,p,7,p,p,p,p,p,p,p,p,p
-asd,swap,asd,asd,asd,asd,asd,7,asd,asd,asd,asd,asd,asd,asd,asd,asd
