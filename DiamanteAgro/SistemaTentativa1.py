@@ -46,35 +46,66 @@ class SistemaGUI:
 class AbaBuySell:
     columns = ['Trade No.', 'Swap/Option','Underlying', 'Trade Date', 'Buy/Sell', 'Product Type', 'Ccy', 
                'Delivery Month', 'Expire Date', 'Strike', 'Notional', 'Long', 'Short', 'Sett. Price', 
-               'Delta', 'Premium (Eq USD)', 'MTM (Eq USD)']
+               'Delta', 'Gamma', 'Vega','Theta', 'Rho', 'Premium (Eq USD)', 'MTM (Eq USD)']
 
     def __init__(self, notebook):
         # Cria o frame da aba
         self.frame = ttk.Frame(notebook)
 
+        self.label = tk.Label(self.frame, text="Aba swap/options")
+        self.label.pack(side="top")
+        # Frame para os botoe
+        self.frame_botao_1 = tk.Frame(self.frame)
+        self.frame_botao_1.pack(side="top")
+
+        self.frame_botao_2 = tk.Frame(self.frame)
+        self.frame_botao_2.pack(side="top")
+
         # Inicializa a tabela principal como DataFrame
         self.table = pd.DataFrame(columns=self.columns)
         self.table_junto = pd.DataFrame(columns=self.columns)
         self.table2 = pd.DataFrame(columns=self.columns)
-        
-        # Adiciona uma label como exemplo
-        self.label = tk.Label(self.frame, text="Aba swap/options")
-        self.label.pack()
+    
 
         # Botão para abrir a janela de adição de contrato
-        self.botao_adicionar_contrato = tk.Button(self.frame, text="Adicionar Contrato", 
-                                                  command=self.abrir_janela_adicionar)
-        self.botao_adicionar_contrato.pack(pady=10)
+        self.botao_adicionar_contrato = tk.Button(self.frame_botao_1, text="Adicionar Contrato", 
+                                                  command=self.abrir_janela_adicionar, width=20)
+        self.botao_adicionar_contrato.pack(side="left",padx=5,pady=5)
         
         #botão para abrir a janela de exibição das tabelas por mes
-        self.botao_exibir_tabelas_mes = tk.Button(self.frame, text='Abrir exibição por mẽs',
-                                                  command=self.abrir_janela_exibicao_mes)
-        self.botao_exibir_tabelas_mes.pack(pady=15)
+        self.botao_exibir_tabelas_mes = tk.Button(self.frame_botao_1, text='Abrir exibição por mẽs',
+                                                  command=self.abrir_janela_exibicao_mes, width=20)
+        self.botao_exibir_tabelas_mes.pack(side = "left",padx=5, pady=5)
+
+        
+        # Frame para as entrys
+        self.frame_entries = tk.Frame(self.frame_botao_2)
+        self.frame_entries.pack(side="top")
+
+        # Entrys para sett price
+        self.frame_sett_price = tk.Frame(self.frame_entries)
+        self.frame_sett_price.pack(side="left", padx=10)
+
+        self.label_sett_price = tk.Label(self.frame_sett_price, text="Sett Price:")
+        self.label_sett_price.pack(side="top", padx=5, pady=5)
+
+        self.entry_sett_price = tk.Entry(self.frame_sett_price)
+        self.entry_sett_price.pack(side="top", padx=5, pady=5)
+
+        # Entrys para vol
+        self.frame_vol = tk.Frame(self.frame_entries)
+        self.frame_vol.pack(side="left", padx=10)
+
+        self.label_vol = tk.Label(self.frame_vol, text="Vol:")
+        self.label_vol.pack(side="top", padx=5, pady=5)
+
+        self.entry_vol = tk.Entry(self.frame_vol)
+        self.entry_vol.pack(side="top", padx=5, pady=5)
         
         
         # Frame para a tabela de swap
         frame_table_swap = tk.Frame(self.frame)
-        frame_table_swap.pack(expand=True, fill='both')
+        frame_table_swap.pack(expand=True, fill='both', side="bottom")
         
         # Criação da tabela de swap com filtro
         self.table_swap = Table(frame_table_swap, dataframe=self.table[self.table["Swap/Option"] == "swap"],
@@ -83,11 +114,13 @@ class AbaBuySell:
         
         # Frame para a tabela de options
         frame_table_option = tk.Frame(self.frame)
-        frame_table_option.pack(expand=True, fill='both')
+        frame_table_option.pack(expand=True, fill='both',side="bottom")
         
         # Criação da tabela de options com filtro
         self.table_option = Table(frame_table_option, dataframe=self.table[self.table["Swap/Option"] == "option"],
                                   showtoolbar=True, showstatusbar=True)
+        
+
 
         # Carrega e exibe as tabelas
         self.carregar_tabelas()
@@ -105,8 +138,7 @@ class AbaBuySell:
         #cria a janela para exibir as tabelas
         janela_exibicao_mes = tk.Toplevel(self.frame)
         janela_exibicao_mes.title("Tabelas por mês")
-        
-        
+
         
         #definindo o tamanho da janela
         janela_exibicao_mes.geometry("1920x1080")
@@ -224,7 +256,7 @@ class AbaBuySell:
         
         # Loop para criar labels e entradas para cada coluna da tabela
         for coluna in self.columns:
-            if coluna in ["Sett. Price", "Delta", "MTM (Eq USD)"]:
+            if coluna in ["Sett. Price", "Delta", "MTM (Eq USD)", 'Gamma', 'Vega','Theta', 'Rho']:
                 continue  # Pula para a próxima iteração, ignorando as colunas especificadas
             else:
                 # Cria um frame para organizar cada label e entrada
@@ -245,7 +277,8 @@ class AbaBuySell:
         # Função interna para capturar os dados e adicionar à tabela
         def adicionar_contrato():
             # Extrai os valores digitados em cada campo de entrada
-            dados = {coluna: entradas[coluna].get() for coluna in self.columns}
+            dados = {coluna: entradas[coluna].get() for coluna in self.columns if coluna not in ["Sett. Price", "Delta", "MTM (Eq USD)",'Gamma', 'Vega','Theta', 'Rho']}
+
 
             # Converte os dados em DataFrame e concatena com self.table
             nova_linha = pd.DataFrame([dados])
