@@ -111,7 +111,6 @@ class AbaBuySell:
         self.table_swap = Table(frame_table_swap, dataframe=self.table[self.table["Swap/Option"] == "swap"],
                                 showtoolbar=True, showstatusbar=True)
         
-        
         # Frame para a tabela de options
         frame_table_option = tk.Frame(self.frame)
         frame_table_option.pack(expand=True, fill='both',side="bottom")
@@ -120,14 +119,18 @@ class AbaBuySell:
         self.table_option = Table(frame_table_option, dataframe=self.table[self.table["Swap/Option"] == "option"],
                                   showtoolbar=True, showstatusbar=True)
         
-
-
         # Carrega e exibe as tabelas
         self.carregar_tabelas()
         self.table_swap.show()
         self.table_option.show()
         
-    
+    def botao_Laterar_tabelas_price_vol(self):
+        # coleta os valores dos inputs de sett price e vol e armazena em variaveis distintas
+        set_price = self.entry_sett_price.get()
+        vol = self.entry_vol.get()
+
+        # implementacao da alteracao de tabela usando os valores de sett price e vol
+
     def abrir_janela_exibicao_mes(self):
         #lista de valores
         mes_list = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro']
@@ -624,5 +627,6 @@ class AbaCalculoPL:
 if __name__ == "__main__":
     root = tk.Tk()
     
+    # cria uma instancia do sistema
     sistema = SistemaGUI(root)
     root.mainloop()
