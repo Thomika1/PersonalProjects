@@ -61,6 +61,9 @@ class AbaBuySell:
         self.frame_botao_2 = tk.Frame(self.frame)
         self.frame_botao_2.pack(side="top")
 
+        self.frame_botao_3 = tk.Frame(self.frame)
+        self.frame_botao_3.pack(side="top")
+
         # Inicializa a tabela principal como DataFrame
         self.table = pd.DataFrame(columns=self.columns)
         self.table_junto = pd.DataFrame(columns=self.columns)
@@ -102,7 +105,14 @@ class AbaBuySell:
         self.entry_vol = tk.Entry(self.frame_vol)
         self.entry_vol.pack(side="top", padx=5, pady=5)
         
+        # Frame e botao para atualizar as tabelas
+        self.frame_botao_atualizar = tk.Frame(self.frame_botao_3)
+        self.frame_botao_atualizar.pack()
+
+        self.botao_atualizar = tk.Button(self.frame_botao_atualizar, text="Atualizar Tabela", command=self.botao_alterar_tabelas_price_vol)
+        self.botao_atualizar.pack(padx=5, pady=5)
         
+
         # Frame para a tabela de swap
         frame_table_swap = tk.Frame(self.frame)
         frame_table_swap.pack(expand=True, fill='both', side="bottom")
@@ -124,10 +134,11 @@ class AbaBuySell:
         self.table_swap.show()
         self.table_option.show()
         
-    def botao_Laterar_tabelas_price_vol(self):
+    def botao_alterar_tabelas_price_vol(self):
         # coleta os valores dos inputs de sett price e vol e armazena em variaveis distintas
         set_price = self.entry_sett_price.get()
         vol = self.entry_vol.get()
+        print("jnfdnfnoiavdnoivdnoisvdnoisvdoni")
 
         # implementacao da alteracao de tabela usando os valores de sett price e vol
 
