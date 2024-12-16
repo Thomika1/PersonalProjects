@@ -135,10 +135,25 @@ class AbaBuySell:
         self.table_option.show()
         
     def botao_alterar_tabelas_price_vol(self):
+        # salva o caminho dos arquivos
+        diretorio_atual = os.path.dirname(os.path.abspath(__file__))
+
         # coleta os valores dos inputs de sett price e vol e armazena em variaveis distintas
         set_price = self.entry_sett_price.get()
         vol = self.entry_vol.get()
         print("jnfdnfnoiavdnoivdnoisvdnoisvdoni")
+
+        for mes in range(1, 13):
+            caminho_arquivo = os.path.join(diretorio_atual, f"table_{mes}.csv")
+            
+            if os.path.exists(caminho_arquivo):
+                
+                dados_mes = pd.read_csv(caminho_arquivo)
+                
+            else:
+                print(f"Arquivo não encontrado para o mês {mes}.")
+
+        
 
         # implementacao da alteracao de tabela usando os valores de sett price e vol
 
