@@ -534,12 +534,12 @@ class AbaPrecosMercado:
         vol = float(self.stored_data["Volatility"])
         
         #de fato calcula e exibe o B&S
-        premium = AbaPrecosMercado.calcula_b_s(stock_price=stock_price, strike_price=strike_price, rate=0, time=time_in_float, vol=vol, dividend=0)
-        delta = self.delta_calc(premium[2])
-        gamma = self.gamma_calc(d1=premium[2], stock_price=stock_price, vol=vol, time=time_in_float)
-        vega = self.vega_calc(d1=premium[2], stock_price=stock_price, time=time_in_float)
-        theta = self.theta_calc(d1 = premium[2], d2 = premium[3], stock_price=stock_price, strike_price=strike_price, time=time_in_float, rate=0, vol=vol) 
-        rho = self.roh_calc(d2=premium[3], strike_price=strike_price, time=time_in_float, rate=0)
+        premium = calcula_b_s(stock_price=stock_price, strike_price=strike_price, rate=0, time=time_in_float, vol=vol, dividend=0)
+        delta = delta_calc(premium[2])
+        gamma = gamma_calc(d1=premium[2], stock_price=stock_price, vol=vol, time=time_in_float)
+        vega = vega_calc(d1=premium[2], stock_price=stock_price, time=time_in_float)
+        theta = theta_calc(d1 = premium[2], d2 = premium[3], stock_price=stock_price, strike_price=strike_price, time=time_in_float, rate=0, vol=vol) 
+        rho = roh_calc(d2=premium[3], strike_price=strike_price, time=time_in_float, rate=0)
 
         #verifica se o frame ja tem uma string
         if not hasattr(self, 'result_label'):
@@ -589,7 +589,9 @@ class AbaPrecosMercado:
         # 𝑟
         # r: Taxa de juros livre de risco rate
     
-    def calcula_b_s(stock_price, strike_price, time, vol, dividend = 0.0, rate=0.0):
+#funcoes globais da grgas
+
+def calcula_b_s(stock_price, strike_price, time, vol, dividend = 0.0, rate=0.0):
 
         d1 = (log(stock_price/strike_price)+(rate-dividend+vol**2/2)*time)/(vol*time**.5)
         d2 = d1 - vol*time**.5
@@ -599,7 +601,7 @@ class AbaPrecosMercado:
         
         return [call, put, d1, d2]
     
-    def delta_calc(self, d1): # calcula delta para call e para put
+def delta_calc(d1): # calcula delta para call e para put
         "Calcula delta"
         
         delta_call = stats.norm.cdf(d1,0,1)
@@ -608,21 +610,21 @@ class AbaPrecosMercado:
          
         return [delta_call, delta_put]
     
-    def gamma_calc(self, d1, stock_price, vol, time): # calcula gamma 
+def gamma_calc(d1, stock_price, vol, time): # calcula gamma 
         "Calcula gamma"
         
         gamma = stats.norm.pdf(d1,0,1)/(stock_price*vol*np.sqrt(time))
         
         return gamma
         
-    def vega_calc(self, d1, stock_price, time):
+def vega_calc( d1, stock_price, time):
         "calcula vega"
         
         vega = stock_price*stats.norm.pdf(d1,0,1)*np.sqrt(time)
         
         return vega*0.01
         
-    def theta_calc(self, d1, d2, stock_price, strike_price, time, rate, vol):
+def theta_calc( d1, d2, stock_price, strike_price, time, rate, vol):
         "calcula theta"
         
         theta_call = -stock_price*stats.norm.pdf(d1,0,1)*vol/(2*np.sqrt(time)) - rate*stock_price*np.exp(-rate*time)*stats.norm.cdf(d2,0,1)
@@ -631,7 +633,7 @@ class AbaPrecosMercado:
         
         return [theta_call/365 , theta_put/365 ]
     
-    def roh_calc(self, d2, strike_price, time, rate):
+def roh_calc( d2, strike_price, time, rate):
         "calcula roh"
         
         rho_call = strike_price*time*np.exp(-rate*time)*stats.norm.cdf(d2,0,1)
