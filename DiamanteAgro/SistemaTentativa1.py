@@ -11,6 +11,23 @@ from datetime import date, datetime
 
 pd.set_option('future.no_silent_downcasting', True)
 
+entradas_del_date = [
+                            ("KCH5", "12-02-2025"),
+                            ("KCK5", "11-04-2025"),
+                            ("KCN5", "12-06-2025"),
+                            ("KCU5", "08-08-2025"),
+                            ("KCZ5", "12-11-2025"),
+                            ("KCH6", "11-02-2026"),
+                            ("KCK6", "10-04-2026"),
+                            ("KCN6", "12-06-2026"),
+                            ("KCU6", "14-08-2026"),
+                            ("KCZ6", "12-11-2026"),
+                            ("KCH7", "10-02-2027"),
+                            ("KCK7", "09-04-2027"),
+                            ("KCN7", "11-06-2027"),
+                            ("KCU7", "13-08-2027")
+                            ]# entradas de codigo de datas
+
 class SistemaGUI:
     def __init__(self, root):
         # Configurações gerais da interface principal
@@ -58,6 +75,7 @@ class AbaBuySell:
                'Delta', 'Gamma', 'Vega','Theta', 'Rho', 'Premium (Eq USD)', 'MTM (Eq USD)']
 
     def __init__(self, notebook):
+        self.table_completa = pd.DataFrame()
         # Cria o frame da aba
         self.frame = ttk.Frame(notebook)
 
@@ -144,37 +162,64 @@ class AbaBuySell:
         self.table_option.show()
         
 
-    def botao_alterar_tabelas_price_vol(self): # Acao do botao para alterar os dados da tabela
-        # Logica para apply e aplicar a volatilidade para a linha para os swaps
+    def botao_alterar_tabelas_price_vol(self):  # Ação do botão para alterar os dados da tabela
+        # Lógica para aplicar a volatilidade para a linha
         def logica_apply(linha):
             time_in_float = converte_data_float(linha["Expire Date"])
             
-            if linha["Swap/Option"].lower() == "option": # if para selecionar apenas as linhas de option
-                premium = calcula_b_s(float(linha["stock_price"]), float(linha["strike_price"]), time_in_float, float(vol), dividend = 0.0, rate=0.0)
-                return premium
+            if linha["Swap/Option"].lower() == "option":  # Apenas para as linhas de "option"
+                premium = calcula_b_s(
+                    float(self.sett_price),
+                    float(linha["Strike"]),
+                    time_in_float,
+                    float(self.vol),
+                    dividend=0.0,
+                    rate=0.0
+                )
+                return premium[1]  # Retorna o valor calculado
             elif linha["Swap/Option"].lower() == "swap":
-                pass
-        
-        # salva o caminho dos arquivos
+                return linha["MTM (Eq USD)"]  # Mantém o valor original para swaps
+
+        # Coleta os valores dos inputs de sett price e vol
+        self.sett_price = self.entry_sett_price.get()
+        self.vol = self.entry_vol.get()
+
+        # Inicializa o DataFrame consolidado (se ainda não foi feito)
+        if not hasattr(self, "table_completa"):
+            self.table_completa = pd.DataFrame()
+
+        # Atualiza os dados mês a mês
         diretorio_atual = os.path.dirname(os.path.abspath(__file__))
-
-        # coleta os valores dos inputs de sett price e vol e armazena em variaveis distintas
-        set_price = self.entry_sett_price.get()
-        vol = self.entry_vol.get()
-
         for mes in range(1, 13):
             caminho_arquivo = os.path.join(diretorio_atual, f"table_{mes}.csv")
             
             if os.path.exists(caminho_arquivo):
+                # Carrega o arquivo para atualizar a coluna específica
                 dados_mes = pd.read_csv(caminho_arquivo)
-                dados_mes["Premium (Eq USD)"].apply(logica_apply, axis=1)
-                
+                dados_mes["MTM (Eq USD)"] = dados_mes.apply(logica_apply, axis=1)  # Atualiza a coluna
+                # Salva o arquivo atualizado
+                dados_mes.to_csv(caminho_arquivo, index=False)
+
+                # Atualiza o DataFrame completo sem duplicar
+                if self.table_completa.empty:
+                    self.table_completa = dados_mes
+                else:
+                    # Atualiza somente as linhas que pertencem ao mês atual
+                    self.table_completa.update(dados_mes)
             else:
                 print(f"Arquivo não encontrado para o mês {mes}.")
 
-        
+        # Atualiza as tabelas da interface gráfica
+        tabela_swap = self.table_completa[self.table_completa["Swap/Option"].str.lower() == "swap"]
+        tabela_option = self.table_completa[self.table_completa["Swap/Option"].str.lower() == "option"]
 
-        # implementacao da alteracao de tabela usando os valores de sett price e vol
+        self.table_swap.updateModel(TableModel(tabela_swap))
+        self.table_swap.redraw()
+
+        self.table_option.updateModel(TableModel(tabela_option))
+        self.table_option.redraw()
+
+        print("Tabelas atualizadas com sucesso.")
 
     def abrir_janela_exibicao_mes(self):
         #lista de valores
@@ -304,7 +349,7 @@ class AbaBuySell:
         
         # Loop para criar labels e entradas para cada coluna da tabela
         for coluna in self.columns:
-            if coluna in ["Sett. Price", "Delta", "MTM (Eq USD)", 'Gamma', 'Vega','Theta', 'Rho']:
+            if coluna in ["Sett. Price", "Delta", "MTM (Eq USD)", 'Gamma', 'Vega','Theta', 'Rho', "Expire Date"]:
                 continue  # Pula para a próxima iteração, ignorando as colunas especificadas
             else:
                 # Cria um frame para organizar cada label e entrada
@@ -322,11 +367,25 @@ class AbaBuySell:
                 # Armazena a entrada no dicionário
                 entradas[coluna] = entrada
 
+        frame_box = tk.Frame(janela_adicionar)
+        frame_box.pack(fill='x', padx=5, pady=2)
+
+        label_del_janela_add = tk.Label(frame_box, text="Expire Date", width=20, anchor="w")
+        label_del_janela_add.pack(side="left")
+
+        self.box_del_janela_add = ttk.Combobox(frame_box, values=entradas_del_date)
+        self.box_del_janela_add.pack(side="left",fill="x", expand=True)
+
+
         # Função interna para capturar os dados e adicionar à tabela
         def adicionar_contrato():
             # Extrai os valores digitados em cada campo de entrada
-            dados = {coluna: entradas[coluna].get() for coluna in self.columns if coluna not in ["Sett. Price", "Delta", "MTM (Eq USD)",'Gamma', 'Vega','Theta', 'Rho']}
-
+            dados = {coluna: entradas[coluna].get() for coluna in self.columns if coluna not in ["Sett. Price", "Delta", "MTM (Eq USD)",'Gamma', 'Vega','Theta', 'Rho', 'Expire Date']}
+            
+            data_no_split = self.box_del_janela_add.get()
+            data_split = data_no_split.split()
+            data_true = data_split[1]
+            dados["Expire Date"] = data_true
 
             # Converte os dados em DataFrame e concatena com self.table
             nova_linha = pd.DataFrame([dados])
@@ -414,22 +473,7 @@ class AbaPrecosMercado:
 
         entradas = ["call","put"] #entradas para a call e a put
         entradas_buy_sell = ["buy","sell"] # entradas para o campo 
-        entradas_del_date = [
-                            ("KCH5", "12-02-2025"),
-                            ("KCK5", "11-04-2025"),
-                            ("KCN5", "12-06-2025"),
-                            ("KCU5", "08-08-2025"),
-                            ("KCZ5", "12-11-2025"),
-                            ("KCH6", "11-02-2026"),
-                            ("KCK6", "10-04-2026"),
-                            ("KCN6", "12-06-2026"),
-                            ("KCU6", "14-08-2026"),
-                            ("KCZ6", "12-11-2026"),
-                            ("KCH7", "10-02-2027"),
-                            ("KCK7", "09-04-2027"),
-                            ("KCN7", "11-06-2027"),
-                            ("KCU7", "13-08-2027")
-                            ]# entradas de codigo de datas
+        
         
         # Configurações da aba Preços de Mercado
         self.label = tk.Label(self.frame, text="Calculadora de Opções")
@@ -602,7 +646,7 @@ class AbaPrecosMercado:
         # 𝑟
         # r: Taxa de juros livre de risco rate
     
-#funcoes globais da grgas
+# funcoes globais das gregas
 
 def calcula_b_s(stock_price, strike_price, time, vol, dividend = 0.0, rate=0.0):
 
