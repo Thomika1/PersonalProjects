@@ -43,6 +43,15 @@ class SistemaGUI:
         #self.aba1.salvar_tabelas()
         self.root.destroy()
 
+def converte_data_float(raw_date):
+
+    delivery_month_date = datetime.strptime(raw_date, "%d-%m-%Y").date()
+        
+    ##subtrai o delivery month pela dia de hoje
+    data = delivery_month_date - date.today()
+    time_in_float = data.days / 365.0
+    return time_in_float
+
 class AbaBuySell:
     columns = ['Trade No.', 'Swap/Option','Underlying', 'Trade Date', 'Buy/Sell', 'Product Type', 'Ccy', 
                'Delivery Month', 'Expire Date', 'Strike', 'Notional', 'Long', 'Short', 'Sett. Price', 
@@ -134,11 +143,17 @@ class AbaBuySell:
         self.table_swap.show()
         self.table_option.show()
         
-    def botao_alterar_tabelas_price_vol(self):
-        
+
+    def botao_alterar_tabelas_price_vol(self): # Acao do botao para alterar os dados da tabela
+        # Logica para apply e aplicar a volatilidade para a linha para os swaps
         def logica_apply(linha):
-            if linha["Swap/Option"].lower() == "Swap":
-                premium = calcula_b_s(linha["stock_price"], linha["strike_price"], linha["Expire Date"], vol, dividend = 0.0, rate=0.0)
+            time_in_float = converte_data_float(linha["Expire Date"])
+            
+            if linha["Swap/Option"].lower() == "option": # if para selecionar apenas as linhas de option
+                premium = calcula_b_s(float(linha["stock_price"]), float(linha["strike_price"]), time_in_float, float(vol), dividend = 0.0, rate=0.0)
+                return premium
+            elif linha["Swap/Option"].lower() == "swap":
+                pass
         
         # salva o caminho dos arquivos
         diretorio_atual = os.path.dirname(os.path.abspath(__file__))
@@ -524,13 +539,7 @@ class AbaPrecosMercado:
         #sobrescreve o expire date com o delivery date por codigo
         self.stored_data["Expire Date"] = del_date_split[1]
 
-        #converte o campo delivery month para data
-        delivery_month_str = self.stored_data["Expire Date"]  #
-        delivery_month_date = datetime.strptime(delivery_month_str, "%d-%m-%Y").date()
-        
-        ##subtrai o delivery month pela dia de hoje
-        data = delivery_month_date - date.today()
-        time_in_float = data.days / 365.0
+        time_in_float = converte_data_float(self.stored_data["Expire Date"])
         
         #converte para float todos os tipos
         stock_price = float(self.stored_data["Sett. Price"])
