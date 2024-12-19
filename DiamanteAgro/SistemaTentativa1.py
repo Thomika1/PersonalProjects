@@ -8,8 +8,10 @@ from scipy import stats
 from datetime import date
 import numpy as np
 from datetime import date, datetime
+import warnings
 
 pd.set_option('future.no_silent_downcasting', True)
+warnings.filterwarnings("ignore", category=FutureWarning)
 
 entradas_del_date = [
                             ("KCH5", "12-02-2025"),
@@ -75,7 +77,6 @@ class AbaBuySell:
                'Delta', 'Gamma', 'Vega','Theta', 'Rho', 'Premium (Eq USD)', 'MTM (Eq USD)']
 
     def __init__(self, notebook):
-        self.table_completa = pd.DataFrame()
         # Cria o frame da aba
         self.frame = ttk.Frame(notebook)
 
@@ -178,15 +179,15 @@ class AbaBuySell:
                 )
                 return premium[1]  # Retorna o valor calculado
             elif linha["Swap/Option"].lower() == "swap":
-                return linha["MTM (Eq USD)"]  # Mantém o valor original para swaps
+                pass  # Mantém o valor original para swaps
 
         # Coleta os valores dos inputs de sett price e vol
         self.sett_price = self.entry_sett_price.get()
         self.vol = self.entry_vol.get()
 
         # Inicializa o DataFrame consolidado (se ainda não foi feito)
-        if not hasattr(self, "table_completa"):
-            self.table_completa = pd.DataFrame()
+        
+        self.table_completa = pd.DataFrame()
 
         # Atualiza os dados mês a mês
         diretorio_atual = os.path.dirname(os.path.abspath(__file__))
@@ -196,29 +197,32 @@ class AbaBuySell:
             if os.path.exists(caminho_arquivo):
                 # Carrega o arquivo para atualizar a coluna específica
                 dados_mes = pd.read_csv(caminho_arquivo)
-                dados_mes["MTM (Eq USD)"] = dados_mes.apply(logica_apply, axis=1)  # Atualiza a coluna
+                dados_mes["MTM (Eq USD)"] = dados_mes.astype(object).apply(logica_apply, axis=1)  # Atualiza a coluna
                 # Salva o arquivo atualizado
                 dados_mes.to_csv(caminho_arquivo, index=False)
-
-                # Atualiza o DataFrame completo sem duplicar
-                if self.table_completa.empty:
-                    self.table_completa = dados_mes
-                else:
-                    # Atualiza somente as linhas que pertencem ao mês atual
-                    self.table_completa.update(dados_mes)
             else:
                 print(f"Arquivo não encontrado para o mês {mes}.")
 
+        for mes in range(1, 13):
+            caminho_arquivo = os.path.join(diretorio_atual, f"table_{mes}.csv")
+            if os.path.exists(caminho_arquivo):
+                dados_mes = pd.read_csv(caminho_arquivo)
+                self.table_completa = pd.concat([self.table_completa, dados_mes], ignore_index=True)
+            else:
+                print(f"Arquivo não encontrado para o mês {mes}.")
+
+
         # Atualiza as tabelas da interface gráfica
-        tabela_swap = self.table_completa[self.table_completa["Swap/Option"].str.lower() == "swap"]
-        tabela_option = self.table_completa[self.table_completa["Swap/Option"].str.lower() == "option"]
+        if not self.table_completa.empty:
+            tabela_swap = self.table_completa[self.table_completa["Swap/Option"].str.lower() == "swap"]
+            tabela_option = self.table_completa[self.table_completa["Swap/Option"].str.lower() == "option"]
 
-        self.table_swap.updateModel(TableModel(tabela_swap))
-        self.table_swap.redraw()
+            self.table_swap.updateModel(TableModel(tabela_swap))
+            self.table_swap.redraw()
 
-        self.table_option.updateModel(TableModel(tabela_option))
-        self.table_option.redraw()
-
+            self.table_option.updateModel(TableModel(tabela_option))
+            self.table_option.redraw()
+            
         print("Tabelas atualizadas com sucesso.")
 
     def abrir_janela_exibicao_mes(self):
