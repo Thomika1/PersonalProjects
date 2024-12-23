@@ -13,6 +13,7 @@ import warnings
 pd.set_option('future.no_silent_downcasting', True)
 warnings.filterwarnings("ignore", category=FutureWarning)
 
+
 entradas_del_date = [
                             ("KCH5", "12-02-2025"),
                             ("KCK5", "11-04-2025"),
@@ -156,7 +157,10 @@ class AbaBuySell:
         # Criação da tabela de options com filtro
         self.table_option = Table(frame_table_option, dataframe=self.table[self.table["Swap/Option"] == "option"],
                                   showtoolbar=True, showstatusbar=True)
-        
+    
+
+        self.table_swap.showResizeColumns = False
+        self.table_option.showResizeColumns = False
         # Carrega e exibe as tabelas
         self.carregar_tabelas()
         self.table_swap.show()
@@ -165,39 +169,141 @@ class AbaBuySell:
 
     def botao_alterar_tabelas_price_vol(self):  # Ação do botão para alterar os dados da tabela
         # Lógica para aplicar a volatilidade para a linha
-        def logica_apply(linha):
+        def logica_apply_mtm(linha):
             time_in_float = converte_data_float(linha["Expire Date"])
-            
+
             if linha["Swap/Option"].lower() == "option":  # Apenas para as linhas de "option"
-                premium = calcula_b_s(
-                    float(self.sett_price),
-                    float(linha["Strike"]),
-                    time_in_float,
-                    float(self.vol),
-                    dividend=0.0,
-                    rate=0.0
-                )
+                premium = calcula_b_s(float(self.sett_price),float(linha["Strike"]),time_in_float,float(self.vol),dividend=0.0,rate=0.0)
                 return premium[1]  # Retorna o valor calculado
+
             elif linha["Swap/Option"].lower() == "swap":
                 pass  # Mantém o valor original para swaps
+
+        def logica_apply_delta(linha):
+            time_in_float = converte_data_float(linha["Expire Date"])
+
+            if linha["Swap/Option"].lower() == "option":  # Apenas para as linhas de "option"
+                premium = calcula_b_s(float(self.sett_price),float(linha["Strike"]),time_in_float,float(self.vol),dividend=0.0,rate=0.0)
+                delta = delta_calc(premium[2])
+                
+                if linha["Product Type"].lower() == "call":
+                    if linha["Buy/Sell"].lower() == "buy":  
+                        return delta[0]
+                    elif linha["Buy/Sell"].lower() == "sell":
+                        return -delta[0]
+                    
+                elif linha["Product Type"].lower() == "put":
+                    if linha["Buy/Sell"].lower() == "buy":
+                        return delta[1]
+                    elif linha["Buy/Sell"].lower() == "sell":
+                        return -delta[1]
+
+            elif linha["Swap/Option"].lower() == "swap":
+                pass  # Mantém o valor original para swaps
+
+        def logica_apply_gamma(linha):
+            time_in_float = converte_data_float(linha["Expire Date"])
+
+            if linha["Swap/Option"].lower() == "option":  # Apenas para as linhas de "option"
+                premium = calcula_b_s(float(self.sett_price),float(linha["Strike"]),time_in_float,float(self.vol),dividend=0.0,rate=0.0)
+                gamma = gamma_calc(premium[2],float(self.sett_price), float(self.vol), time_in_float)
+                
+                if linha["Buy/Sell"].lower() == "buy":
+                    return gamma
+                elif linha["Buy/Sell"].lower() == "sell":
+                    return -gamma
+
+            elif linha["Swap/Option"].lower() == "swap":
+                pass  # Mantém o valor original para swaps
+
+        def logica_apply_vega(linha):
+            time_in_float = converte_data_float(linha["Expire Date"])
+
+            if linha["Swap/Option"].lower() == "option":  # Apenas para as linhas de "option"
+                premium = calcula_b_s(float(self.sett_price),float(linha["Strike"]),time_in_float,float(self.vol),dividend=0.0,rate=0.0)
+                vega = vega_calc(premium[2],float(self.sett_price), time_in_float)
+                
+                if linha["Buy/Sell"].lower() == "sell":
+                    if linha["Product Type"].lower() == "put":
+                        print("BUY E SELL")
+                        return -vega*0.01
+                    else:
+                        print("RESTO!!!!!!!!!!!!")
+                        return vega*0.01
+
+            elif linha["Swap/Option"].lower() == "swap":
+                pass  # Mantém o valor original para swaps
+        
+        def logica_apply_theta(linha):
+            time_in_float = converte_data_float(linha["Expire Date"])
+
+            if linha["Swap/Option"].lower() == "option":  # Apenas para as linhas de "option"
+                premium = calcula_b_s(float(self.sett_price),float(linha["Strike"]),time_in_float,float(self.vol),dividend=0.0,rate=0.0)
+                theta = theta_calc(premium[2],premium[3], float(self.sett_price), float(linha["Strike"]), time_in_float, 0.0, float(self.vol))
+                
+                if linha["Product Type"].lower() == "call":
+                    if linha["Buy/Sell"].lower() == "buy":  
+                        return theta[0]/365
+                    elif linha["Buy/Sell"].lower() == "sell":
+                        return -theta[0]/365
+                    
+                elif linha["Product Type"].lower() == "put":
+                    if linha["Buy/Sell"].lower() == "buy":
+                        return theta[1]/365
+                    elif linha["Buy/Sell"].lower() == "sell":
+                        return -theta[1]/365
+
+            elif linha["Swap/Option"].lower() == "swap":
+                pass  # Mantém o valor original para swaps
+
+        def logica_apply_rho(linha):
+            time_in_float = converte_data_float(linha["Expire Date"])
+
+            if linha["Swap/Option"].lower() == "option":  # Apenas para as linhas de "option"
+                premium = calcula_b_s(float(self.sett_price),float(linha["Strike"]),time_in_float,float(self.vol),dividend=0.0,rate=0.0)
+                rho = rho_calc(premium[3], float(linha["Strike"]), time_in_float, 0.0)
+                
+                if linha["Product Type"].lower() == "call":
+                    if linha["Buy/Sell"].lower() == "buy":  
+                        return rho[0]*0.01
+                    elif linha["Buy/Sell"].lower() == "sell":
+                        return rho[0]*0.01
+                        
+                elif linha["Product Type"].lower() == "put":
+                    if linha["Buy/Sell"].lower() == "buy":
+                        return rho[1]*0.01
+                    elif linha["Buy/Sell"].lower() == "sell":
+                        return rho[1]*0.01
+
+            elif linha["Swap/Option"].lower() == "swap":
+                pass  # Mantém o valor original para swaps
+
 
         # Coleta os valores dos inputs de sett price e vol
         self.sett_price = self.entry_sett_price.get()
         self.vol = self.entry_vol.get()
 
         # Inicializa o DataFrame consolidado (se ainda não foi feito)
-        
         self.table_completa = pd.DataFrame()
 
         # Atualiza os dados mês a mês
         diretorio_atual = os.path.dirname(os.path.abspath(__file__))
+
         for mes in range(1, 13):
             caminho_arquivo = os.path.join(diretorio_atual, f"table_{mes}.csv")
             
             if os.path.exists(caminho_arquivo):
                 # Carrega o arquivo para atualizar a coluna específica
                 dados_mes = pd.read_csv(caminho_arquivo)
-                dados_mes["MTM (Eq USD)"] = dados_mes.astype(object).apply(logica_apply, axis=1)  # Atualiza a coluna
+
+                #chama as funcoes apply para alterar as colunas especificas
+                dados_mes["MTM (Eq USD)"] = dados_mes.apply(logica_apply_mtm, axis=1)  
+                dados_mes["Delta"] = dados_mes.astype(object).apply(logica_apply_delta, axis=1)
+                dados_mes["Gamma"] = dados_mes.astype(object).apply(logica_apply_gamma, axis=1)
+                dados_mes["Vega"] = dados_mes.astype(object).apply(logica_apply_vega, axis=1)
+                dados_mes["Theta"] = dados_mes.astype(object).apply(logica_apply_theta, axis=1)
+                dados_mes["Rho"] = dados_mes.astype(object).apply(logica_apply_rho, axis=1)
+                
                 # Salva o arquivo atualizado
                 dados_mes.to_csv(caminho_arquivo, index=False)
             else:
@@ -600,7 +706,7 @@ class AbaPrecosMercado:
         gamma = gamma_calc(d1=premium[2], stock_price=stock_price, vol=vol, time=time_in_float)
         vega = vega_calc(d1=premium[2], stock_price=stock_price, time=time_in_float)
         theta = theta_calc(d1 = premium[2], d2 = premium[3], stock_price=stock_price, strike_price=strike_price, time=time_in_float, rate=0, vol=vol) 
-        rho = roh_calc(d2=premium[3], strike_price=strike_price, time=time_in_float, rate=0)
+        rho = rho_calc(d2=premium[3], strike_price=strike_price, time=time_in_float, rate=0)
 
         #verifica se o frame ja tem uma string
         if not hasattr(self, 'result_label'):
@@ -694,7 +800,7 @@ def theta_calc( d1, d2, stock_price, strike_price, time, rate, vol):
         
         return [theta_call/365 , theta_put/365 ]
     
-def roh_calc( d2, strike_price, time, rate):
+def rho_calc( d2, strike_price, time, rate):
         "calcula roh"
         
         rho_call = strike_price*time*np.exp(-rate*time)*stats.norm.cdf(d2,0,1)
