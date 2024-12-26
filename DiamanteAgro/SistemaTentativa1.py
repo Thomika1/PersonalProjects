@@ -174,7 +174,13 @@ class AbaBuySell:
 
             if linha["Swap/Option"].lower() == "option":  # Apenas para as linhas de "option"
                 premium = calcula_b_s(float(self.sett_price),float(linha["Strike"]),time_in_float,float(self.vol),dividend=0.0,rate=0.0)
-                return premium[1]  # Retorna o valor calculado
+                
+                if linha["Product Type"].lower() == "call":
+                    
+                    return premium[0]  # Retorna o valor calculado
+                else:
+                    return premium[1]
+                
 
             elif linha["Swap/Option"].lower() == "swap":
                 pass  # Mantém o valor original para swaps
@@ -185,7 +191,7 @@ class AbaBuySell:
             if linha["Swap/Option"].lower() == "option":  # Apenas para as linhas de "option"
                 premium = calcula_b_s(float(self.sett_price),float(linha["Strike"]),time_in_float,float(self.vol),dividend=0.0,rate=0.0)
                 delta = delta_calc(premium[2])
-                
+
                 if linha["Product Type"].lower() == "call":
                     if linha["Buy/Sell"].lower() == "buy":  
                         return delta[0]
@@ -228,7 +234,6 @@ class AbaBuySell:
                         print("BUY E SELL")
                         return -vega*0.01
                     else:
-                        print("RESTO!!!!!!!!!!!!")
                         return vega*0.01
 
             elif linha["Swap/Option"].lower() == "swap":
