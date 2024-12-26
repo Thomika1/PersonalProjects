@@ -13,6 +13,7 @@ import warnings
 pd.set_option('future.no_silent_downcasting', True)
 warnings.filterwarnings("ignore", category=FutureWarning)
 
+exec_colunas = ["Sett. Price", "Delta", "MTM (Eq USD)",'Gamma', 'Vega','Theta', 'Rho', 'Expire Date', 'Delivery Month', "Long", "Short", "Product Type", "Buy/Sell"]
 
 entradas_del_date = [
                             ("KCH5", "12-02-2025"),
@@ -94,6 +95,9 @@ class AbaBuySell:
 
         self.frame_botao_3 = tk.Frame(self.frame)
         self.frame_botao_3.pack(side="top")
+
+        # Inicializa a janela adiconar contrato
+        
 
         # Inicializa a tabela principal como DataFrame
         self.table = pd.DataFrame(columns=self.columns)
@@ -233,10 +237,11 @@ class AbaBuySell:
                 
                 if linha["Buy/Sell"].lower() == "sell":
                     if linha["Product Type"].lower() == "put":
-                        print("BUY E SELL")
                         return -vega
                     else:
                         return vega
+                else:
+                    return vega
 
             elif linha["Swap/Option"].lower() == "swap":
                 pass  # Mantém o valor original para swaps
@@ -299,10 +304,12 @@ class AbaBuySell:
         for mes in meses_nomes:
             caminho_arquivo = os.path.join(diretorio_atual, f"table_{mes}.csv")
             
+
             if os.path.exists(caminho_arquivo):
                 # Carrega o arquivo para atualizar a coluna específica
                 dados_mes = pd.read_csv(caminho_arquivo)
 
+                dados_mes["Sett. Price"] = self.sett_price
                 #chama as funcoes apply para alterar as colunas especificas
                 dados_mes["MTM (Eq USD)"] = dados_mes.apply(logica_apply_mtm, axis=1)  
                 dados_mes["Delta"] = dados_mes.astype(object).apply(logica_apply_delta, axis=1)
@@ -439,15 +446,25 @@ class AbaBuySell:
     #função para abrir a janela com suas respectivas caracteristicas     
     def abrir_janela_adicionar(self):
         # Cria uma nova janela "top-level" que flutua sobre a principal
+    
+        # Verifica se já existe uma janela aberta com o título "Adicionar Contrato"
+        for widget in self.frame.winfo_children():
+            if isinstance(widget, tk.Toplevel) and widget.title() == "Adicionar Contrato":
+                widget.lift()  # Traz a janela existente para o topo
+                return
+
+
+
         janela_adicionar = tk.Toplevel(self.frame)
         janela_adicionar.title("Adicionar Contrato")
+
         
         # Lista de entradas, com um campo de entrada para cada coluna da tabela
         entradas = {}
         
         # Loop para criar labels e entradas para cada coluna da tabela
         for coluna in self.columns:
-            if coluna in ["Sett. Price", "Delta", "MTM (Eq USD)", 'Gamma', 'Vega','Theta', 'Rho', "Expire Date", "Delivery Month"]:
+            if coluna in exec_colunas:
                 continue  # Pula para a próxima iteração, ignorando as colunas especificadas
             else:
                 # Cria um frame para organizar cada label e entrada
@@ -485,14 +502,59 @@ class AbaBuySell:
         self.box_del_mon = ttk.Combobox(frame_del_mon, values=meses_nomes)
         self.box_del_mon.pack(side="left",fill="x", expand=True)
 
+        # combobox call e put
+        call_put = ["Call", "Put"]
+        frame_call_put = tk.Frame(janela_adicionar)
+        frame_call_put.pack(fill='x', padx=5, pady=2)
+
+        label_call_put = tk.Label(frame_call_put, text="Producut Type(call/put)", width=20, anchor="w")
+        label_call_put.pack(side='left')
+
+        self.box_call_put = ttk.Combobox(frame_call_put, values=call_put)
+        self.box_call_put.pack(side="left",fill="x", expand=True)
+
+        # combobox buy e sell
+        buy_sell = ["Buy", "Sell"]
+        frame_buy_sell = tk.Frame(janela_adicionar)
+        frame_buy_sell.pack(fill='x', padx=5, pady=2)
+
+        label_buy_sell = tk.Label(frame_buy_sell, text="Buy/Sell", width=20, anchor="w")
+        label_buy_sell.pack(side='left')
+
+        self.box_buy_sell = ttk.Combobox(frame_buy_sell, values=buy_sell)
+        self.box_buy_sell.pack(side="left",fill="x", expand=True)
+
+        #combobox swap option
+        swap_option = ["Swap", "Option"]
+        frame_swap_option = tk.Frame(janela_adicionar)
+        frame_swap_option.pack(fill='x', padx=5, pady=2)
+
+        label_swap_option = tk.Label(frame_swap_option, text="Swap/Option", width=20, anchor="w")
+        label_swap_option.pack(side='left')
+
+        self.box_swap_option = ttk.Combobox(frame_swap_option, values=swap_option)
+        self.box_swap_option.pack(side="left",fill="x", expand=True)
+
 
         # Função interna para capturar os dados e adicionar à tabela
         def adicionar_contrato():
             # Extrai os valores digitados em cada campo de entrada
-            dados = {coluna: entradas[coluna].get() for coluna in self.columns if coluna not in ["Sett. Price", "Delta", "MTM (Eq USD)",'Gamma', 'Vega','Theta', 'Rho', 'Expire Date', 'Delivery Month']}
+            dados = {coluna: entradas[coluna].get() for coluna in self.columns if coluna not in exec_colunas}
             
+            if dados["Buy/Sell"].lower() == "buy":
+                dados["Long"] = dados["Notional"]
+                dados["Short"] = 0
+            elif dados["Buy/Sell"].lower() == "sell":
+                dados["Long"] = 0
+                dados["Short"] = dados["Notional"]
+           
+            dados["Product Type"] = self.box_call_put.get()
+
+            dados["Buy/Sell"] = self.box_buy_sell.get()
             
             dados['Delivery Month'] = self.box_del_mon.get()
+
+            dados["Swap/Option"] = self.box_swap_option.get()
 
             data_no_split = self.box_del_janela_add.get()
             data_split = data_no_split.split()
