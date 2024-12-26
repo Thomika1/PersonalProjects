@@ -232,9 +232,9 @@ class AbaBuySell:
                 if linha["Buy/Sell"].lower() == "sell":
                     if linha["Product Type"].lower() == "put":
                         print("BUY E SELL")
-                        return -vega*0.01
+                        return -vega
                     else:
-                        return vega*0.01
+                        return vega
 
             elif linha["Swap/Option"].lower() == "swap":
                 pass  # Mantém o valor original para swaps
@@ -248,15 +248,15 @@ class AbaBuySell:
                 
                 if linha["Product Type"].lower() == "call":
                     if linha["Buy/Sell"].lower() == "buy":  
-                        return theta[0]/365
+                        return theta[0]
                     elif linha["Buy/Sell"].lower() == "sell":
-                        return -theta[0]/365
+                        return -theta[0]
                     
                 elif linha["Product Type"].lower() == "put":
                     if linha["Buy/Sell"].lower() == "buy":
-                        return theta[1]/365
+                        return theta[1]
                     elif linha["Buy/Sell"].lower() == "sell":
-                        return -theta[1]/365
+                        return -theta[1]
 
             elif linha["Swap/Option"].lower() == "swap":
                 pass  # Mantém o valor original para swaps
@@ -270,15 +270,15 @@ class AbaBuySell:
                 
                 if linha["Product Type"].lower() == "call":
                     if linha["Buy/Sell"].lower() == "buy":  
-                        return rho[0]*0.01
+                        return rho[0]
                     elif linha["Buy/Sell"].lower() == "sell":
-                        return rho[0]*0.01
+                        return rho[0]
                         
                 elif linha["Product Type"].lower() == "put":
                     if linha["Buy/Sell"].lower() == "buy":
-                        return rho[1]*0.01
+                        return rho[1]
                     elif linha["Buy/Sell"].lower() == "sell":
-                        return rho[1]*0.01
+                        return rho[1]
 
             elif linha["Swap/Option"].lower() == "swap":
                 pass  # Mantém o valor original para swaps
