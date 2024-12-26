@@ -72,9 +72,11 @@ def converte_data_float(raw_date):
     time_in_float = data.days / 365.0
     return time_in_float
 
+meses_nomes = ["janeiro", "fevereiro", "marco", "abril", "maio", "junho", "julho", "agosto", "setembro", "outrubro", "novembro", "dezembro"]
+
 class AbaBuySell:
     columns = ['Trade No.', 'Swap/Option','Underlying', 'Trade Date', 'Buy/Sell', 'Product Type', 'Ccy', 
-               'Delivery Month', 'Expire Date', 'Strike', 'Notional', 'Long', 'Short', 'Sett. Price', 
+               'Delivery Month','Expire Date', 'Strike', 'Notional', 'Long', 'Short', 'Sett. Price', 
                'Delta', 'Gamma', 'Vega','Theta', 'Rho', 'Premium (Eq USD)', 'MTM (Eq USD)']
 
     def __init__(self, notebook):
@@ -294,7 +296,7 @@ class AbaBuySell:
         # Atualiza os dados mês a mês
         diretorio_atual = os.path.dirname(os.path.abspath(__file__))
 
-        for mes in range(1, 13):
+        for mes in meses_nomes:
             caminho_arquivo = os.path.join(diretorio_atual, f"table_{mes}.csv")
             
             if os.path.exists(caminho_arquivo):
@@ -314,7 +316,7 @@ class AbaBuySell:
             else:
                 print(f"Arquivo não encontrado para o mês {mes}.")
 
-        for mes in range(1, 13):
+        for mes in meses_nomes:
             caminho_arquivo = os.path.join(diretorio_atual, f"table_{mes}.csv")
             if os.path.exists(caminho_arquivo):
                 dados_mes = pd.read_csv(caminho_arquivo)
@@ -337,8 +339,7 @@ class AbaBuySell:
         print("Tabelas atualizadas com sucesso.")
 
     def abrir_janela_exibicao_mes(self):
-        #lista de valores
-        mes_list = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro']
+    
         
         #caminho dos arquivos
         diretorio_atual = os.path.dirname(os.path.abspath(__file__))
@@ -364,39 +365,21 @@ class AbaBuySell:
             
         
         #combobox com o valores e posição 
-        box_mes1 = ttk.Combobox(frame_botao, values=mes_list)
+        box_mes1 = ttk.Combobox(frame_botao, values=meses_nomes)
         box_mes1.pack(pady=5)
         
-        box_mes2 = ttk.Combobox(frame_botao, values=mes_list)
+        box_mes2 = ttk.Combobox(frame_botao, values=meses_nomes)
         box_mes2.pack(pady=5)
         
         def exibe_tabelas(): #filtrar os valores e salvar
-            # Mapeamento dos meses por nome para número
-            meses = {
-                "Janeiro": "1",
-                "Fevereiro": "2",
-                "Março": "3",
-                "Abril": "4",
-                "Maio": "5",
-                "Junho": "6",
-                "Julho": "7",
-                "Agosto": "8",
-                "Setembro": "9",
-                "Outubro": "10",
-                "Novembro": "11",
-                "Dezembro": "12"
-            } # dicionario para mapear os meses
-            
+
             # Obter os meses selecionados
             mes1 = box_mes1.get()
             mes2 = box_mes2.get()
             
-            # Converter o nome do mês para o número correspondente
-            mes1_num = meses[mes1]
-            mes2_num = meses[mes2]
-            
-            caminho_arquivo_mes1 = os.path.join(diretorio_atual, f"table_{mes1_num}.csv")
-            caminho_arquivo_mes2 = os.path.join(diretorio_atual, f"table_{mes2_num}.csv")
+
+            caminho_arquivo_mes1 = os.path.join(diretorio_atual, f"table_{mes1}.csv")
+            caminho_arquivo_mes2 = os.path.join(diretorio_atual, f"table_{mes2}.csv")
     
             
             # Carregar os arquivos CSV correspondentes
@@ -464,7 +447,7 @@ class AbaBuySell:
         
         # Loop para criar labels e entradas para cada coluna da tabela
         for coluna in self.columns:
-            if coluna in ["Sett. Price", "Delta", "MTM (Eq USD)", 'Gamma', 'Vega','Theta', 'Rho', "Expire Date"]:
+            if coluna in ["Sett. Price", "Delta", "MTM (Eq USD)", 'Gamma', 'Vega','Theta', 'Rho', "Expire Date", "Delivery Month"]:
                 continue  # Pula para a próxima iteração, ignorando as colunas especificadas
             else:
                 # Cria um frame para organizar cada label e entrada
@@ -482,21 +465,35 @@ class AbaBuySell:
                 # Armazena a entrada no dicionário
                 entradas[coluna] = entrada
 
-        frame_box = tk.Frame(janela_adicionar)
-        frame_box.pack(fill='x', padx=5, pady=2)
+        # Combobox de expire dates
+        frame_box_exp = tk.Frame(janela_adicionar)
+        frame_box_exp.pack(fill='x', padx=5, pady=2)
 
-        label_del_janela_add = tk.Label(frame_box, text="Expire Date", width=20, anchor="w")
+        label_del_janela_add = tk.Label(frame_box_exp, text="Expire Date", width=20, anchor="w")
         label_del_janela_add.pack(side="left")
 
-        self.box_del_janela_add = ttk.Combobox(frame_box, values=entradas_del_date)
+        self.box_del_janela_add = ttk.Combobox(frame_box_exp, values=entradas_del_date)
         self.box_del_janela_add.pack(side="left",fill="x", expand=True)
+
+        # Combobox dos meses
+        frame_del_mon = tk.Frame(janela_adicionar)
+        frame_del_mon.pack(fill='x', padx=5, pady=2)
+
+        label_del_mon = tk.Label(frame_del_mon, text="Delivery Month", width=20, anchor="w")
+        label_del_mon.pack(side='left')
+
+        self.box_del_mon = ttk.Combobox(frame_del_mon, values=meses_nomes)
+        self.box_del_mon.pack(side="left",fill="x", expand=True)
 
 
         # Função interna para capturar os dados e adicionar à tabela
         def adicionar_contrato():
             # Extrai os valores digitados em cada campo de entrada
-            dados = {coluna: entradas[coluna].get() for coluna in self.columns if coluna not in ["Sett. Price", "Delta", "MTM (Eq USD)",'Gamma', 'Vega','Theta', 'Rho', 'Expire Date']}
+            dados = {coluna: entradas[coluna].get() for coluna in self.columns if coluna not in ["Sett. Price", "Delta", "MTM (Eq USD)",'Gamma', 'Vega','Theta', 'Rho', 'Expire Date', 'Delivery Month']}
             
+            
+            dados['Delivery Month'] = self.box_del_mon.get()
+
             data_no_split = self.box_del_janela_add.get()
             data_split = data_no_split.split()
             data_true = data_split[1]
@@ -556,7 +553,7 @@ class AbaBuySell:
         diretorio_atual = os.path.dirname(os.path.abspath(__file__))
 
         # Carrega os arquivos CSV por mês (1 a 12)
-        for mes in range(1, 13):
+        for mes in meses_nomes:
             caminho_arquivo = os.path.join(diretorio_atual, f"table_{mes}.csv")
             
             if os.path.exists(caminho_arquivo):
