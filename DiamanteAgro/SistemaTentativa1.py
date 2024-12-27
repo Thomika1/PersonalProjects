@@ -13,7 +13,8 @@ import warnings
 pd.set_option('future.no_silent_downcasting', True)
 warnings.filterwarnings("ignore", category=FutureWarning)
 
-exec_colunas = ["Sett. Price", "Delta", "MTM (Eq USD)",'Gamma', 'Vega','Theta', 'Rho', 'Expire Date', 'Delivery Month', "Long", "Short", "Product Type", "Buy/Sell"]
+except_colunas = ["Sett. Price", "Delta", "MTM (Eq USD)",'Gamma', 'Vega','Theta', 'Rho', 'Expire Date', 'Delivery Month', "Long", "Short", "Product Type", "Buy/Sell"]
+meses_nomes = ["janeiro", "fevereiro", "marco", "abril", "maio", "junho", "julho", "agosto", "setembro", "outrubro", "novembro", "dezembro"]
 
 entradas_del_date = [
                             ("KCH5", "12-02-2025"),
@@ -72,8 +73,6 @@ def converte_data_float(raw_date):
     data = delivery_month_date - date.today()
     time_in_float = data.days / 365.0
     return time_in_float
-
-meses_nomes = ["janeiro", "fevereiro", "marco", "abril", "maio", "junho", "julho", "agosto", "setembro", "outrubro", "novembro", "dezembro"]
 
 class AbaBuySell:
     columns = ['Trade No.', 'Swap/Option','Underlying', 'Trade Date', 'Buy/Sell', 'Product Type', 'Ccy', 
@@ -172,7 +171,6 @@ class AbaBuySell:
         self.table_swap.show()
         self.table_option.show()
         
-
     def botao_alterar_tabelas_price_vol(self):  # Ação do botão para alterar os dados da tabela
         # Lógica para aplicar a volatilidade para a linha
         def logica_apply_mtm(linha):
@@ -189,7 +187,7 @@ class AbaBuySell:
                 
 
             elif linha["Swap/Option"].lower() == "swap":
-                pass  # Mantém o valor original para swaps
+                return linha["Notional"]*(linha["Strike"]-self.sett_price)*375  
 
         def logica_apply_delta(linha):
             time_in_float = converte_data_float(linha["Expire Date"])
@@ -211,7 +209,10 @@ class AbaBuySell:
                         return -delta[1]
 
             elif linha["Swap/Option"].lower() == "swap":
-                pass  # Mantém o valor original para swaps
+                if linha["Buy/Sell"].lower() == "buy":
+                    return 1
+                elif linha["Buy/Sell"].lower() == "sell":
+                    return -1  # Mantém o valor original para swaps
 
         def logica_apply_gamma(linha):
             time_in_float = converte_data_float(linha["Expire Date"])
@@ -226,7 +227,7 @@ class AbaBuySell:
                     return -gamma
 
             elif linha["Swap/Option"].lower() == "swap":
-                pass  # Mantém o valor original para swaps
+                return 0  # Mantém o valor original para swaps
 
         def logica_apply_vega(linha):
             time_in_float = converte_data_float(linha["Expire Date"])
@@ -244,7 +245,7 @@ class AbaBuySell:
                     return vega
 
             elif linha["Swap/Option"].lower() == "swap":
-                pass  # Mantém o valor original para swaps
+                return 0  # Mantém o valor original para swaps
         
         def logica_apply_theta(linha):
             time_in_float = converte_data_float(linha["Expire Date"])
@@ -266,7 +267,7 @@ class AbaBuySell:
                         return -theta[1]
 
             elif linha["Swap/Option"].lower() == "swap":
-                pass  # Mantém o valor original para swaps
+                return 0  # Mantém o valor original para swaps
 
         def logica_apply_rho(linha):
             time_in_float = converte_data_float(linha["Expire Date"])
@@ -288,7 +289,7 @@ class AbaBuySell:
                         return rho[1]
 
             elif linha["Swap/Option"].lower() == "swap":
-                pass  # Mantém o valor original para swaps
+                return 0  # Mantém o valor original para swaps
 
 
         # Coleta os valores dos inputs de sett price e vol
@@ -453,18 +454,15 @@ class AbaBuySell:
                 widget.lift()  # Traz a janela existente para o topo
                 return
 
-
-
         janela_adicionar = tk.Toplevel(self.frame)
         janela_adicionar.title("Adicionar Contrato")
 
-        
         # Lista de entradas, com um campo de entrada para cada coluna da tabela
         entradas = {}
         
         # Loop para criar labels e entradas para cada coluna da tabela
         for coluna in self.columns:
-            if coluna in exec_colunas:
+            if coluna in except_colunas:
                 continue  # Pula para a próxima iteração, ignorando as colunas especificadas
             else:
                 # Cria um frame para organizar cada label e entrada
@@ -539,7 +537,7 @@ class AbaBuySell:
         # Função interna para capturar os dados e adicionar à tabela
         def adicionar_contrato():
             # Extrai os valores digitados em cada campo de entrada
-            dados = {coluna: entradas[coluna].get() for coluna in self.columns if coluna not in exec_colunas}
+            dados = {coluna: entradas[coluna].get() for coluna in self.columns if coluna not in except_colunas}
             
             if dados["Buy/Sell"].lower() == "buy":
                 dados["Long"] = dados["Notional"]
