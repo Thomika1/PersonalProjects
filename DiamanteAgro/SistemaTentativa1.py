@@ -13,8 +13,8 @@ import warnings
 pd.set_option('future.no_silent_downcasting', True)
 warnings.filterwarnings("ignore", category=FutureWarning)
 
-except_colunas = ["Sett. Price", "Delta", "MTM (Eq USD)",'Gamma', 'Vega','Theta', 'Rho', 'Expire Date', 'Delivery Month', "Long", "Short", "Product Type", "Buy/Sell"]
-meses_nomes = ["janeiro", "fevereiro", "marco", "abril", "maio", "junho", "julho", "agosto", "setembro", "outrubro", "novembro", "dezembro"]
+except_colunas = ["Sett. Price", "Delta", "MTM (Eq USD)",'Gamma', 'Vega','Theta', 'Rho', 'Expire Date', 'Delivery Month', "Long", "Short", "Product Type", "Buy/Sell", "Swap/Option"]
+meses_nomes = ["Janeiro", "Fevereiro", "Marco", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outrubro", "Novembro", "Dezembro"]
 
 entradas_del_date = [
                             ("KCH5", "12-02-2025"),
@@ -164,8 +164,6 @@ class AbaBuySell:
                                   showtoolbar=True, showstatusbar=True)
     
 
-        self.table_swap.showResizeColumns = False
-        self.table_option.showResizeColumns = False
         # Carrega e exibe as tabelas
         self.carregar_tabelas()
         self.table_swap.show()
@@ -187,7 +185,9 @@ class AbaBuySell:
                 
 
             elif linha["Swap/Option"].lower() == "swap":
-                return linha["Notional"]*(linha["Strike"]-self.sett_price)*375  
+                mtm = int(linha["Notional"])*(float(linha["Strike"])-float(self.sett_price))*375
+                print(mtm)
+                return mtm
 
         def logica_apply_delta(linha):
             time_in_float = converte_data_float(linha["Expire Date"])
@@ -210,9 +210,9 @@ class AbaBuySell:
 
             elif linha["Swap/Option"].lower() == "swap":
                 if linha["Buy/Sell"].lower() == "buy":
-                    return 1
+                    return 1*linha["Notional"]
                 elif linha["Buy/Sell"].lower() == "sell":
-                    return -1  # Mantém o valor original para swaps
+                    return -1*linha["Notional"] # Mantém o valor original para swaps
 
         def logica_apply_gamma(linha):
             time_in_float = converte_data_float(linha["Expire Date"])
@@ -539,6 +539,8 @@ class AbaBuySell:
             # Extrai os valores digitados em cada campo de entrada
             dados = {coluna: entradas[coluna].get() for coluna in self.columns if coluna not in except_colunas}
             
+            dados["Buy/Sell"] = self.box_buy_sell.get()
+            
             if dados["Buy/Sell"].lower() == "buy":
                 dados["Long"] = dados["Notional"]
                 dados["Short"] = 0
@@ -548,8 +550,6 @@ class AbaBuySell:
            
             dados["Product Type"] = self.box_call_put.get()
 
-            dados["Buy/Sell"] = self.box_buy_sell.get()
-            
             dados['Delivery Month'] = self.box_del_mon.get()
 
             dados["Swap/Option"] = self.box_swap_option.get()
@@ -558,6 +558,8 @@ class AbaBuySell:
             data_split = data_no_split.split()
             data_true = data_split[1]
             dados["Expire Date"] = data_true
+
+            #NAO TEM PREMIUM EM SWAP 
 
             # Converte os dados em DataFrame e concatena com self.table
             nova_linha = pd.DataFrame([dados])
@@ -568,10 +570,10 @@ class AbaBuySell:
             self.table_junto = pd.concat([self.table, self.table2], ignore_index=True)
             
             if dados["Swap/Option"].lower() == "swap":
-                self.table_swap.updateModel(TableModel(self.table_junto[self.table_junto["Swap/Option"] == "swap"]))
+                self.table_swap.updateModel(TableModel(self.table_junto[self.table_junto["Swap/Option"].str.lower() == "swap"]))
                 self.table_swap.redraw()
             elif dados["Swap/Option"].lower() == "option":
-                self.table_option.updateModel(TableModel(self.table_junto[self.table_junto["Swap/Option"] == "option"]))
+                self.table_option.updateModel(TableModel(self.table_junto[self.table_junto["Swap/Option"].str.lower() == "option"]))
                 self.table_option.redraw()
 
             self.salvar_tabelas()
