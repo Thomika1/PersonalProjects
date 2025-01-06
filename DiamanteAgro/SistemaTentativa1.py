@@ -173,21 +173,22 @@ class AbaBuySell:
         # Lógica para aplicar a volatilidade para a linha
         def logica_apply_mtm(linha):
             time_in_float = converte_data_float(linha["Expire Date"])
+            premium = calcula_b_s(float(self.sett_price),float(linha["Strike"]),time_in_float,float(self.vol),dividend=0.0,rate=0.0)
 
-            if linha["Swap/Option"].lower() == "option":  # Apenas para as linhas de "option"
-                premium = calcula_b_s(float(self.sett_price),float(linha["Strike"]),time_in_float,float(self.vol),dividend=0.0,rate=0.0)
-                
+            if linha["Swap/Option"].lower() == "option":  # Apenas para as linhas de "option" 
                 if linha["Product Type"].lower() == "call":
                     
-                    return premium[0]  # Retorna o valor calculado
+                    return premium[0]*linha["Notional"]  # Retorna o valor calculado
                 else:
-                    return premium[1]
-                
+                    return premium[1]*linha["Notional"]
 
             elif linha["Swap/Option"].lower() == "swap":
-                mtm = int(linha["Notional"])*(float(linha["Strike"])-float(self.sett_price))*375
-                print(mtm)
-                return mtm
+                if linha["Buy/Sell"].lower() == "buy":
+                    mtm = int(linha["Notional"])*(float(self.sett_price)-float(linha["Strike"]))*375
+                    return mtm
+                elif linha["Buy/Sell"].lower() == "sell":
+                    mtm = int(linha["Notional"])*(float(linha["Strike"])-float(self.sett_price))*375
+                    return mtm
 
         def logica_apply_delta(linha):
             time_in_float = converte_data_float(linha["Expire Date"])
@@ -198,15 +199,15 @@ class AbaBuySell:
 
                 if linha["Product Type"].lower() == "call":
                     if linha["Buy/Sell"].lower() == "buy":  
-                        return delta[0]
+                        return delta[0]*linha["Notional"]
                     elif linha["Buy/Sell"].lower() == "sell":
-                        return -delta[0]
+                        return -delta[0]*linha["Notional"]
                     
                 elif linha["Product Type"].lower() == "put":
                     if linha["Buy/Sell"].lower() == "buy":
-                        return delta[1]
+                        return delta[1]*linha["Notional"]
                     elif linha["Buy/Sell"].lower() == "sell":
-                        return -delta[1]
+                        return -delta[1]*linha["Notional"]
 
             elif linha["Swap/Option"].lower() == "swap":
                 if linha["Buy/Sell"].lower() == "buy":
@@ -222,9 +223,9 @@ class AbaBuySell:
                 gamma = gamma_calc(premium[2],float(self.sett_price), float(self.vol), time_in_float)
                 
                 if linha["Buy/Sell"].lower() == "buy":
-                    return gamma
+                    return gamma*linha["Notional"]
                 elif linha["Buy/Sell"].lower() == "sell":
-                    return -gamma
+                    return -gamma*linha["Notional"]
 
             elif linha["Swap/Option"].lower() == "swap":
                 return 0  # Mantém o valor original para swaps
@@ -238,11 +239,11 @@ class AbaBuySell:
                 
                 if linha["Buy/Sell"].lower() == "sell":
                     if linha["Product Type"].lower() == "put":
-                        return -vega
+                        return -vega*linha["Notional"]
                     else:
-                        return vega
+                        return vega*linha["Notional"]
                 else:
-                    return vega
+                    return vega*linha["Notional"]
 
             elif linha["Swap/Option"].lower() == "swap":
                 return 0  # Mantém o valor original para swaps
@@ -256,15 +257,15 @@ class AbaBuySell:
                 
                 if linha["Product Type"].lower() == "call":
                     if linha["Buy/Sell"].lower() == "buy":  
-                        return theta[0]
+                        return theta[0]*linha["Notional"]
                     elif linha["Buy/Sell"].lower() == "sell":
-                        return -theta[0]
+                        return -theta[0]*linha["Notional"]
                     
                 elif linha["Product Type"].lower() == "put":
                     if linha["Buy/Sell"].lower() == "buy":
-                        return theta[1]
+                        return theta[1]*linha["Notional"]
                     elif linha["Buy/Sell"].lower() == "sell":
-                        return -theta[1]
+                        return -theta[1]*linha["Notional"]
 
             elif linha["Swap/Option"].lower() == "swap":
                 return 0  # Mantém o valor original para swaps
@@ -278,15 +279,15 @@ class AbaBuySell:
                 
                 if linha["Product Type"].lower() == "call":
                     if linha["Buy/Sell"].lower() == "buy":  
-                        return rho[0]
+                        return rho[0]*linha["Notional"]
                     elif linha["Buy/Sell"].lower() == "sell":
-                        return rho[0]
+                        return rho[0]*linha["Notional"]
                         
                 elif linha["Product Type"].lower() == "put":
                     if linha["Buy/Sell"].lower() == "buy":
-                        return rho[1]
+                        return rho[1]*linha["Notional"]
                     elif linha["Buy/Sell"].lower() == "sell":
-                        return rho[1]
+                        return rho[1]*linha["Notional"]
 
             elif linha["Swap/Option"].lower() == "swap":
                 return 0  # Mantém o valor original para swaps
@@ -539,8 +540,9 @@ class AbaBuySell:
             # Extrai os valores digitados em cada campo de entrada
             dados = {coluna: entradas[coluna].get() for coluna in self.columns if coluna not in except_colunas}
             
+            # Adiciona os valores exepcionais
             dados["Buy/Sell"] = self.box_buy_sell.get()
-            
+
             if dados["Buy/Sell"].lower() == "buy":
                 dados["Long"] = dados["Notional"]
                 dados["Short"] = 0
@@ -554,12 +556,14 @@ class AbaBuySell:
 
             dados["Swap/Option"] = self.box_swap_option.get()
 
+            # Independente do que for digitado em premium o valor eh ajustado para 0 no caso swap
+            if dados["Swap/Option"].lower() == "swap":
+                dados["Premium (Eq USD)"] = 0
+            
             data_no_split = self.box_del_janela_add.get()
             data_split = data_no_split.split()
             data_true = data_split[1]
             dados["Expire Date"] = data_true
-
-            #NAO TEM PREMIUM EM SWAP 
 
             # Converte os dados em DataFrame e concatena com self.table
             nova_linha = pd.DataFrame([dados])
