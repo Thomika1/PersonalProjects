@@ -9,6 +9,8 @@ from datetime import date
 import numpy as np
 from datetime import date, datetime
 import warnings
+import re
+from tkinter import messagebox
 
 pd.set_option('future.no_silent_downcasting', True)
 warnings.filterwarnings("ignore", category=FutureWarning)
@@ -538,6 +540,14 @@ class AbaBuySell:
         # Função interna para capturar os dados e adicionar à tabela
         def adicionar_contrato():
             # Extrai os valores digitados em cada campo de entrada
+            
+            data_input = entradas["Trade Date"].get().strip()
+
+            if not re.fullmatch(r"^\d{2}-\d{2}-\d{4}$", data_input):
+                messagebox.showerror("Erro de Validação", "Data deve estar no formato dd-mm-yy.")
+                janela_adicionar.lift()
+                return
+            
             dados = {coluna: entradas[coluna].get() for coluna in self.columns if coluna not in except_colunas}
             
             # Adiciona os valores exepcionais
