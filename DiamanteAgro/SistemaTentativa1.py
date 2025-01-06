@@ -13,7 +13,7 @@ import warnings
 pd.set_option('future.no_silent_downcasting', True)
 warnings.filterwarnings("ignore", category=FutureWarning)
 
-except_colunas = ["Sett. Price", "Delta", "MTM (Eq USD)",'Gamma', 'Vega','Theta', 'Rho', 'Expire Date', 'Delivery Month', "Long", "Short", "Product Type", "Buy/Sell", "Swap/Option"]
+except_colunas = ["Sett. Price", "Delta", "MTM (Eq USD)",'Gamma', 'Vega','Theta', 'Rho', 'Expire Date', 'Delivery Month', "Long", "Short", "Product Type", "Buy/Sell", "Swap/Option", "Ccy", "Underlying"]
 meses_nomes = ["Janeiro", "Fevereiro", "Marco", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outrubro", "Novembro", "Dezembro"]
 
 entradas_del_date = [
@@ -178,17 +178,17 @@ class AbaBuySell:
             if linha["Swap/Option"].lower() == "option":  # Apenas para as linhas de "option" 
                 if linha["Product Type"].lower() == "call":
                     
-                    return premium[0]*linha["Notional"]  # Retorna o valor calculado
+                    return round(premium[0]*linha["Notional"], 2)  # Retorna o valor calculado
                 else:
-                    return premium[1]*linha["Notional"]
+                    return round(premium[1]*linha["Notional"], 2)
 
             elif linha["Swap/Option"].lower() == "swap":
                 if linha["Buy/Sell"].lower() == "buy":
                     mtm = int(linha["Notional"])*(float(self.sett_price)-float(linha["Strike"]))*375
-                    return mtm
+                    return round(mtm, 2)
                 elif linha["Buy/Sell"].lower() == "sell":
                     mtm = int(linha["Notional"])*(float(linha["Strike"])-float(self.sett_price))*375
-                    return mtm
+                    return round(mtm, 2)
 
         def logica_apply_delta(linha):
             time_in_float = converte_data_float(linha["Expire Date"])
@@ -199,21 +199,21 @@ class AbaBuySell:
 
                 if linha["Product Type"].lower() == "call":
                     if linha["Buy/Sell"].lower() == "buy":  
-                        return delta[0]*linha["Notional"]
+                        return round(delta[0]*linha["Notional"], 2)
                     elif linha["Buy/Sell"].lower() == "sell":
-                        return -delta[0]*linha["Notional"]
+                        return round(-delta[0]*linha["Notional"], 2)
                     
                 elif linha["Product Type"].lower() == "put":
                     if linha["Buy/Sell"].lower() == "buy":
-                        return delta[1]*linha["Notional"]
+                        return round(delta[1]*linha["Notional"], 2)
                     elif linha["Buy/Sell"].lower() == "sell":
-                        return -delta[1]*linha["Notional"]
+                        return round(-delta[1]*linha["Notional"], 2)
 
             elif linha["Swap/Option"].lower() == "swap":
                 if linha["Buy/Sell"].lower() == "buy":
-                    return 1*linha["Notional"]
+                    return round(1*linha["Notional"], 2)
                 elif linha["Buy/Sell"].lower() == "sell":
-                    return -1*linha["Notional"] # Mantém o valor original para swaps
+                    return round(-1*linha["Notional"], 2) # Mantém o valor original para swaps
 
         def logica_apply_gamma(linha):
             time_in_float = converte_data_float(linha["Expire Date"])
@@ -223,9 +223,9 @@ class AbaBuySell:
                 gamma = gamma_calc(premium[2],float(self.sett_price), float(self.vol), time_in_float)
                 
                 if linha["Buy/Sell"].lower() == "buy":
-                    return gamma*linha["Notional"]
+                    return round(gamma*linha["Notional"], 2)
                 elif linha["Buy/Sell"].lower() == "sell":
-                    return -gamma*linha["Notional"]
+                    return round(-gamma*linha["Notional"], 2)
 
             elif linha["Swap/Option"].lower() == "swap":
                 return 0  # Mantém o valor original para swaps
@@ -239,11 +239,11 @@ class AbaBuySell:
                 
                 if linha["Buy/Sell"].lower() == "sell":
                     if linha["Product Type"].lower() == "put":
-                        return -vega*linha["Notional"]
+                        return round(-vega*linha["Notional"], 2)
                     else:
-                        return vega*linha["Notional"]
+                        return round(vega*linha["Notional"], 2)
                 else:
-                    return vega*linha["Notional"]
+                    return round(vega*linha["Notional"], 2)
 
             elif linha["Swap/Option"].lower() == "swap":
                 return 0  # Mantém o valor original para swaps
@@ -257,15 +257,15 @@ class AbaBuySell:
                 
                 if linha["Product Type"].lower() == "call":
                     if linha["Buy/Sell"].lower() == "buy":  
-                        return theta[0]*linha["Notional"]
+                        return round(theta[0]*linha["Notional"], 2)
                     elif linha["Buy/Sell"].lower() == "sell":
-                        return -theta[0]*linha["Notional"]
+                        return round(-theta[0]*linha["Notional"], 2)
                     
                 elif linha["Product Type"].lower() == "put":
                     if linha["Buy/Sell"].lower() == "buy":
-                        return theta[1]*linha["Notional"]
+                        return round(theta[1]*linha["Notional"], 2)
                     elif linha["Buy/Sell"].lower() == "sell":
-                        return -theta[1]*linha["Notional"]
+                        return round(-theta[1]*linha["Notional"], 2)
 
             elif linha["Swap/Option"].lower() == "swap":
                 return 0  # Mantém o valor original para swaps
@@ -279,15 +279,15 @@ class AbaBuySell:
                 
                 if linha["Product Type"].lower() == "call":
                     if linha["Buy/Sell"].lower() == "buy":  
-                        return rho[0]*linha["Notional"]
+                        return round(rho[0]*linha["Notional"], 2)
                     elif linha["Buy/Sell"].lower() == "sell":
-                        return rho[0]*linha["Notional"]
+                        return round(rho[0]*linha["Notional"], 2)
                         
                 elif linha["Product Type"].lower() == "put":
                     if linha["Buy/Sell"].lower() == "buy":
-                        return rho[1]*linha["Notional"]
+                        return round(rho[1]*linha["Notional"], 2)
                     elif linha["Buy/Sell"].lower() == "sell":
-                        return rho[1]*linha["Notional"]
+                        return round(rho[1]*linha["Notional"], 2)
 
             elif linha["Swap/Option"].lower() == "swap":
                 return 0  # Mantém o valor original para swaps
@@ -549,6 +549,10 @@ class AbaBuySell:
             elif dados["Buy/Sell"].lower() == "sell":
                 dados["Long"] = 0
                 dados["Short"] = dados["Notional"]
+
+            dados["Ccy"] = "USD"
+
+            dados["Underlying"] = "KC"
            
             dados["Product Type"] = self.box_call_put.get()
 
