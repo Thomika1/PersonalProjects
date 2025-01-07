@@ -483,6 +483,11 @@ class AbaBuySell:
                 # Armazena a entrada no dicionário
                 entradas[coluna] = entrada
 
+
+        def remove_selection(event):
+            # Remove a seleção de texto ao alterar o valor na combobox
+           event.widget.selection_clear()
+
         # Combobox de expire dates
         frame_box_exp = tk.Frame(janela_adicionar)
         frame_box_exp.pack(fill='x', padx=5, pady=2)
@@ -490,7 +495,7 @@ class AbaBuySell:
         label_del_janela_add = tk.Label(frame_box_exp, text="Expire Date", width=20, anchor="w")
         label_del_janela_add.pack(side="left")
 
-        self.box_del_janela_add = ttk.Combobox(frame_box_exp, values=entradas_del_date)
+        self.box_del_janela_add = ttk.Combobox(frame_box_exp, values=entradas_del_date, state="readonly")
         self.box_del_janela_add.pack(side="left",fill="x", expand=True)
 
         # Combobox dos meses
@@ -500,7 +505,7 @@ class AbaBuySell:
         label_del_mon = tk.Label(frame_del_mon, text="Delivery Month", width=20, anchor="w")
         label_del_mon.pack(side='left')
 
-        self.box_del_mon = ttk.Combobox(frame_del_mon, values=meses_nomes)
+        self.box_del_mon = ttk.Combobox(frame_del_mon, values=meses_nomes, state="readonly")
         self.box_del_mon.pack(side="left",fill="x", expand=True)
 
         # combobox call e put
@@ -511,7 +516,7 @@ class AbaBuySell:
         label_call_put = tk.Label(frame_call_put, text="Producut Type(call/put)", width=20, anchor="w")
         label_call_put.pack(side='left')
 
-        self.box_call_put = ttk.Combobox(frame_call_put, values=call_put)
+        self.box_call_put = ttk.Combobox(frame_call_put, values=call_put, state="readonly")
         self.box_call_put.pack(side="left",fill="x", expand=True)
 
         # combobox buy e sell
@@ -522,7 +527,7 @@ class AbaBuySell:
         label_buy_sell = tk.Label(frame_buy_sell, text="Buy/Sell", width=20, anchor="w")
         label_buy_sell.pack(side='left')
 
-        self.box_buy_sell = ttk.Combobox(frame_buy_sell, values=buy_sell)
+        self.box_buy_sell = ttk.Combobox(frame_buy_sell, values=buy_sell, state="readonly")
         self.box_buy_sell.pack(side="left",fill="x", expand=True)
 
         #combobox swap option
@@ -533,9 +538,14 @@ class AbaBuySell:
         label_swap_option = tk.Label(frame_swap_option, text="Swap/Option", width=20, anchor="w")
         label_swap_option.pack(side='left')
 
-        self.box_swap_option = ttk.Combobox(frame_swap_option, values=swap_option)
+        self.box_swap_option = ttk.Combobox(frame_swap_option, values=swap_option, state="readonly")
         self.box_swap_option.pack(side="left",fill="x", expand=True)
 
+        self.box_del_janela_add.bind("<<ComboboxSelected>>", remove_selection)
+        self.box_del_mon.bind("<<ComboboxSelected>>", remove_selection)
+        self.box_call_put.bind("<<ComboboxSelected>>", remove_selection)
+        self.box_buy_sell.bind("<<ComboboxSelected>>", remove_selection)
+        self.box_swap_option.bind("<<ComboboxSelected>>", remove_selection)
 
         # Função interna para capturar os dados e adicionar à tabela
         def adicionar_contrato():
