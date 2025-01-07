@@ -3,25 +3,6 @@ import tkinter as tk
 from tkinter import ttk
 from functions import *
 
-entradas_del_date = [
-                            ("KCH5", "12-02-2025"),
-                            ("KCK5", "11-04-2025"),
-                            ("KCN5", "12-06-2025"),
-                            ("KCU5", "08-08-2025"),
-                            ("KCZ5", "12-11-2025"),
-                            ("KCH6", "11-02-2026"),
-                            ("KCK6", "10-04-2026"),
-                            ("KCN6", "12-06-2026"),
-                            ("KCU6", "14-08-2026"),
-                            ("KCZ6", "12-11-2026"),
-                            ("KCH7", "10-02-2027"),
-                            ("KCK7", "09-04-2027"),
-                            ("KCN7", "11-06-2027"),
-                            ("KCU7", "13-08-2027")
-                            ]# entradas de codigo de datas
-
-
-
 class AbaPrecosMercado:
     def __init__(self, notebook):
         # Cria o frame da aba
