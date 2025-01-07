@@ -551,9 +551,8 @@ class AbaBuySell:
         def adicionar_contrato():
             # Extrai os valores digitados em cada campo de entrada
             
-            data_input = entradas["Trade Date"].get().strip()
-
-            if not re.fullmatch(r"^\d{2}-\d{2}-\d{4}$", data_input):
+            # trata as excecoes de fotmato de data
+            if not re.fullmatch(r"^\d{2}-\d{2}-\d{4}$", entradas["Trade Date"].get()):
                 messagebox.showerror("Erro de Validação", "Data deve estar no formato dd-mm-yy.")
                 janela_adicionar.lift()
                 return
