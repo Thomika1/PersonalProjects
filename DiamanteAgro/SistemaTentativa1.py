@@ -4,6 +4,7 @@ from tkinter import ttk
 import warnings
 from aba_buy_sell import AbaBuySell
 from aba_precos_mercado import AbaPrecosMercado
+from aba_calculo_pl import AbaCalculoPL
 
 pd.set_option('future.no_silent_downcasting', True)
 warnings.filterwarnings("ignore", category=FutureWarning)
@@ -39,15 +40,6 @@ class SistemaGUI:
         # Salva as tabelas antes de fechar
         #self.aba1.salvar_tabelas()
         self.root.destroy()
-                    
-class AbaCalculoPL:
-    def __init__(self, notebook):
-        # Cria o frame da aba
-        self.frame = ttk.Frame(notebook)
-        # Configurações da aba Cálculo de P&L
-        self.label = tk.Label(self.frame, text="Aba Cálculo de P&L")
-        self.label.pack()
-        # Adicione aqui os widgets e funcionalidades específicas desta aba
 
 # Inicialização do sistema
 if __name__ == "__main__":
