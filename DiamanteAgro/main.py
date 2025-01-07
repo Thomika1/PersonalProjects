@@ -9,6 +9,7 @@ from aba_calculo_pl import AbaCalculoPL
 pd.set_option('future.no_silent_downcasting', True)
 warnings.filterwarnings("ignore", category=FutureWarning)
 
+# inicializa as abas
 class SistemaGUI:
     def __init__(self, root):
         # Configurações gerais da interface principal
