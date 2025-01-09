@@ -112,9 +112,9 @@ class AbaBuySell:
             if linha["Swap/Option"].lower() == "option":  # Apenas para as linhas de "option" 
                 if linha["Product Type"].lower() == "call":
                     
-                    return round(premium[0]*linha["Notional"], 2)  # Retorna o valor calculado
+                    return round(premium[0]*linha["Notional"]*375, 2)  # Retorna o valor calculado
                 else:
-                    return round(premium[1]*linha["Notional"], 2)
+                    return round(premium[1]*linha["Notional"]*375, 2)
 
             elif linha["Swap/Option"].lower() == "swap":
                 if linha["Buy/Sell"].lower() == "buy":
