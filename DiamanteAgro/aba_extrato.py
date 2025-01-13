@@ -44,9 +44,9 @@ class AbaBuySell:
         self.botao_adicionar_contrato.pack(side="left",padx=5,pady=5)
         
         #botão para abrir a janela de exibição das tabelas por mes
-        self.botao_exibir_tabelas_mes = tk.Button(self.frame_botao_1, text='Abrir exibição por mẽs',
-                                                  command=self.abrir_janela_exibicao_mes, width=20)
-        self.botao_exibir_tabelas_mes.pack(side = "left",padx=5, pady=5)
+        self.botao_excluir_contrato = tk.Button(self.frame_botao_1, text='Excluir contrato',
+                                                  command=self.abrir_janela_excluir_contrato, width=20)
+        self.botao_excluir_contrato.pack(side = "left",padx=5, pady=5)
 
         
         # Frame para as entrys
@@ -281,103 +281,9 @@ class AbaBuySell:
             
         print("Tabelas atualizadas com sucesso.")
 
-    def abrir_janela_exibicao_mes(self):
-    
+    def abrir_janela_excluir_contrato(self):
+        pass
         
-        #caminho dos arquivos
-        diretorio_atual = os.path.dirname(os.path.abspath(__file__))
-        
-        #cria a janela para exibir as tabelas
-        janela_exibicao_mes = tk.Toplevel(self.frame)
-        janela_exibicao_mes.title("Tabelas por mês")
-
-        
-        #definindo o tamanho da janela
-        janela_exibicao_mes.geometry("1920x1080")
-        
-        #frame para o botao e as combobox
-        frame_botao = tk.Frame(janela_exibicao_mes)
-        frame_botao.pack(expand=True, fill='both')
-        
-
-        frame_mes1 = tk.LabelFrame(janela_exibicao_mes, text="Mês 1")
-        frame_mes1.pack(side="left", expand=True, fill="both")  # Ajustar para 'side="left"'
-
-        frame_mes2 = tk.LabelFrame(janela_exibicao_mes, text="Mês 2")
-        frame_mes2.pack(side="right", expand=True, fill="both")  # Ajustar para 'side="right"'
-            
-        
-        #combobox com o valores e posição 
-        box_mes1 = ttk.Combobox(frame_botao, values=meses_nomes)
-        box_mes1.pack(pady=5)
-        
-        box_mes2 = ttk.Combobox(frame_botao, values=meses_nomes)
-        box_mes2.pack(pady=5)
-        
-        def exibe_tabelas(): #filtrar os valores e salvar
-
-            # Obter os meses selecionados
-            mes1 = box_mes1.get()
-            mes2 = box_mes2.get()
-            
-
-            caminho_arquivo_mes1 = os.path.join(diretorio_atual, f"table_{mes1}.csv")
-            caminho_arquivo_mes2 = os.path.join(diretorio_atual, f"table_{mes2}.csv")
-    
-            
-            # Carregar os arquivos CSV correspondentes
-            df_mes1 = pd.read_csv(caminho_arquivo_mes1)
-            df_mes2 = pd.read_csv(caminho_arquivo_mes2)
-            
-                
-            #POSSO USAR SELF_TABLE_JUNTO PARA QUE ATUALIZE SEMPRE 
-            
-            table_p_concat_mes1 = self.table[self.table["Delivery Month"] == mes1]
-            df_mes1_concat = pd.concat([table_p_concat_mes1, df_mes1], ignore_index=True)
-            
-            table_p_concat_mes2 = self.table[self.table["Delivery Month"] == mes2]
-            df_mes2_concat = pd.concat([table_p_concat_mes2, df_mes2], ignore_index=True)
-            
-            
-            # Filtrar e exibir as tabelas para cada tipo (Swap e Option) separadamente
-            # Para o mês 1
-            df_mes1_swap = df_mes1_concat[df_mes1["Swap/Option"] == "swap"]
-            df_mes1_option = df_mes1_concat[df_mes1["Swap/Option"] == "option"]
-            
-            # Para o mês 2
-            df_mes2_swap = df_mes2_concat[df_mes2["Swap/Option"] == "swap"]
-            df_mes2_option = df_mes2_concat[df_mes2["Swap/Option"] == "option"]
-            
-            
-            # Exibir as tabelas em frames diferentes para cada categoria e mês
-            table_mes1_swap = Table(frame_table_mes1_swap, dataframe=df_mes1_swap, showtoolbar=True, showstatusbar=True)
-            table_mes1_option = Table(frame_table_mes1_option, dataframe=df_mes1_option, showtoolbar=True, showstatusbar=True)
-            table_mes2_swap = Table(frame_table_mes2_swap, dataframe=df_mes2_swap, showtoolbar=True, showstatusbar=True)
-            table_mes2_option = Table(frame_table_mes2_option, dataframe=df_mes2_option, showtoolbar=True, showstatusbar=True)
-            
-            # Atualizar as tabelas na interface
-            table_mes1_swap.show()
-            table_mes1_option.show()
-            table_mes2_swap.show()
-            table_mes2_option.show()
-        
-        
-        #cria botao para gerar as tabelas filtradas
-        botao_exibe_tabelas_mes = tk.Button(frame_botao, text = 'Exibir Tabelas',command=exibe_tabelas)
-        botao_exibe_tabelas_mes.pack(pady=5)
-        
-        #cria o frame para inserir a Table
-        frame_table_mes1_swap = tk.LabelFrame(frame_mes1,text='Swap')
-        frame_table_mes1_swap.pack(expand=True, fill='both')
-        
-        frame_table_mes1_option = tk.LabelFrame(frame_mes1,text='Option')
-        frame_table_mes1_option.pack(expand=True, fill='both')
-        
-        frame_table_mes2_swap = tk.LabelFrame(frame_mes2,text='Swap')
-        frame_table_mes2_swap.pack(expand=True, fill='both')
-        
-        frame_table_mes2_option = tk.LabelFrame(frame_mes2,text='Option')
-        frame_table_mes2_option.pack(expand=True, fill='both')
         
     #função para abrir a janela com suas respectivas caracteristicas     
     def abrir_janela_adicionar(self):
