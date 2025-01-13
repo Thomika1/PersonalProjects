@@ -17,7 +17,7 @@ class AbaBuySell:
         # Cria o frame da aba
         self.frame = ttk.Frame(notebook)
 
-        self.label = tk.Label(self.frame, text="Aba swap/options")
+        self.label = tk.Label(self.frame, text="Extrato")
         self.label.pack(side="top")
         # Frame para os botoe
         self.frame_botao_1 = tk.Frame(self.frame)

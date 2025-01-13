@@ -2,12 +2,13 @@ import pandas as pd
 import tkinter as tk
 from tkinter import ttk
 import warnings
-from aba_buy_sell import AbaBuySell
+from aba_extrato import AbaBuySell
 from aba_precos_mercado import AbaPrecosMercado
 from aba_calculo_pl import AbaCalculoPL
 
 pd.set_option('future.no_silent_downcasting', True)
 warnings.filterwarnings("ignore", category=FutureWarning)
+pd.set_option('display.float_format', '{:.2f}'.format)
 
 # inicializa as abas
 class SistemaGUI:
@@ -30,8 +31,8 @@ class SistemaGUI:
         self.aba3 = AbaCalculoPL(self.notebook)
         
         # Adiciona as abas ao notebook
-        self.notebook.add(self.aba1.frame, text="Buy/Sell")
-        self.notebook.add(self.aba2.frame, text="Preços de Mercado")
+        self.notebook.add(self.aba1.frame, text="Extrato")
+        self.notebook.add(self.aba2.frame, text="Calculadora de opções")
         self.notebook.add(self.aba3.frame, text="Cálculo de P&L")
         
         # Configura o evento de fechamento da janela
