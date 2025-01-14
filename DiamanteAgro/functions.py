@@ -1,8 +1,17 @@
 from datetime import date
 from datetime import date, datetime
+import os
 
-except_colunas = ["Sett. Price", "Delta", "MTM (Eq USD)",'Gamma', 'Vega','Theta', 'Rho', 'Expire Date', 'Delivery Month', "Long", "Short", "Product Type", "Buy/Sell", "Swap/Option", "Ccy", "Underlying"]
+diretorio_atual = os.path.dirname(os.path.abspath(__file__))
+
+except_colunas = ["Sett. Price", "Delta", "MTM (Eq USD)",'Gamma', 'Vega','Theta', 'Rho', 'Expire Date', 'Delivery Month', "Long", "Short", "Product Type", "Buy/Sell", "Swap/Option", "Ccy", "Underlying", "Trade No."]
+
 meses_nomes = ["Janeiro", "Fevereiro", "Marco", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outrubro", "Novembro", "Dezembro"]
+
+columns = ['Trade No.', 'Swap/Option','Underlying', 'Trade Date', 'Buy/Sell', 'Product Type', 'Ccy', 
+               'Delivery Month','Expire Date', 'Strike', 'Notional', 'Long', 'Short', 'Sett. Price', 
+               'Delta', 'Gamma', 'Vega','Theta', 'Rho', 'Premium (Eq USD)', 'MTM (Eq USD)']
+
 
 entradas_del_date = [
                             ("KCH5", "12-02-2025"),

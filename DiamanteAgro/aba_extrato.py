@@ -9,9 +9,6 @@ import re
 import os
 
 class AbaBuySell:
-    columns = ['Trade No.', 'Swap/Option','Underlying', 'Trade Date', 'Buy/Sell', 'Product Type', 'Ccy', 
-               'Delivery Month','Expire Date', 'Strike', 'Notional', 'Long', 'Short', 'Sett. Price', 
-               'Delta', 'Gamma', 'Vega','Theta', 'Rho', 'Premium (Eq USD)', 'MTM (Eq USD)']
 
     def __init__(self, notebook):
         # Cria o frame da aba
@@ -33,9 +30,9 @@ class AbaBuySell:
         
 
         # Inicializa a tabela principal como DataFrame
-        self.table = pd.DataFrame(columns=self.columns)
-        self.table_junto = pd.DataFrame(columns=self.columns)
-        self.table2 = pd.DataFrame(columns=self.columns)
+        self.table = pd.DataFrame(columns=columns)
+        self.table_junto = pd.DataFrame(columns=columns)
+        self.table2 = pd.DataFrame(columns=columns)
     
 
         # Botão para abrir a janela de adição de contrato
@@ -308,17 +305,16 @@ class AbaBuySell:
         entry_excluir_contrato.pack(expand=True, pady=50, padx=30)
 
         # Botao para excluir a linha
+        def excluir_contrato():
+            pass
+        # cria o botao para excluir contrato
         botao_excluir_contrato = tk.Button(janela_excluir, text="Excluir Contrato", command=excluir_contrato)
         botao_excluir_contrato.pack(padx=20, pady=20)
 
-        def excluir_contrato():
-            pass
 
         
     #função para abrir a janela com suas respectivas caracteristicas     
     def abrir_janela_adicionar(self):
-        # Cria uma nova janela "top-level" que flutua sobre a principal
-    
         # Verifica se já existe uma janela aberta com o título "Adicionar Contrato"
         for widget in self.frame.winfo_children():
             if isinstance(widget, tk.Toplevel) and widget.title() == "Adicionar Contrato":
@@ -332,7 +328,7 @@ class AbaBuySell:
         entradas = {}
         
         # Loop para criar labels e entradas para cada coluna da tabela
-        for coluna in self.columns:
+        for coluna in columns:
             if coluna in except_colunas:
                 continue  # Pula para a próxima iteração, ignorando as colunas especificadas
             else:
@@ -355,6 +351,7 @@ class AbaBuySell:
         def remove_selection(event):
             # Remove a seleção de texto ao alterar o valor na combobox
            event.widget.selection_clear()
+
 
         # Combobox de expire dates
         frame_box_exp = tk.Frame(janela_adicionar)
@@ -409,6 +406,7 @@ class AbaBuySell:
         self.box_swap_option = ttk.Combobox(frame_swap_option, values=swap_option, state="readonly")
         self.box_swap_option.pack(side="left",fill="x", expand=True)
 
+        # remove a selecao das combobox ao selecionar uma opcao
         self.box_del_janela_add.bind("<<ComboboxSelected>>", remove_selection)
         self.box_del_mon.bind("<<ComboboxSelected>>", remove_selection)
         self.box_call_put.bind("<<ComboboxSelected>>", remove_selection)
@@ -425,8 +423,20 @@ class AbaBuySell:
                 janela_adicionar.lift()
                 return
             
-            dados = {coluna: entradas[coluna].get() for coluna in self.columns if coluna not in except_colunas}
+            dados = {coluna: entradas[coluna].get() for coluna in columns if coluna not in except_colunas}
             
+            # logica para numerar os contratos
+            tamanho = 0
+            for mes in meses_nomes: 
+                caminho_arquivo = os.path.join(diretorio_atual, f"table_{mes}.csv")
+                if os.path.exists(caminho_arquivo):
+                    dados_mes = pd.read_csv(caminho_arquivo)
+                    tamanho = tamanho + len(dados_mes)
+                else:
+                    pass
+                
+            dados["Trade No."] = tamanho + 1
+
             # Adiciona os valores exepcionais
             dados["Buy/Sell"] = self.box_buy_sell.get()
 
@@ -507,7 +517,6 @@ class AbaBuySell:
 
     #função para carregar o conteudo das tabelas
     def carregar_tabelas(self):
-        diretorio_atual = os.path.dirname(os.path.abspath(__file__))
 
         # Carrega os arquivos CSV por mês (1 a 12)
         for mes in meses_nomes:
