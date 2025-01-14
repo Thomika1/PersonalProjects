@@ -282,8 +282,38 @@ class AbaBuySell:
         print("Tabelas atualizadas com sucesso.")
 
     def abrir_janela_excluir_contrato(self):
-        pass
+        for widget in self.frame.winfo_children():
+            if isinstance(widget, tk.Toplevel) and widget.title() == "Excluir Contrato":
+                widget.lift()  # Traz a janela existente para o topo
+                return
+        # Cria a janela top level
+        janela_excluir = tk.Toplevel(self.frame)
+        janela_excluir.title("Excluir Contrato")
         
+        # Salva as dimensoes 
+        largura = int(self.frame.winfo_screenwidth()/2)
+        altura = int(self.frame.winfo_screenheight()/2)
+        janela_excluir.geometry(f"{600}x{300}+{largura-300}+{altura-150}")
+
+        # Frame da janela que recebe contrato 
+        frame_entry_excluir_contrato = tk.Frame(janela_excluir)
+        frame_entry_excluir_contrato.pack(fill='both')
+        
+        # Label da entry 
+        label_excluir_contrato = tk.Label(frame_entry_excluir_contrato, text="Digite o numero do contrato")
+        label_excluir_contrato.pack(pady=10, padx=30)
+
+        # Entry para receber o input
+        entry_excluir_contrato = tk.Entry(frame_entry_excluir_contrato)
+        entry_excluir_contrato.pack(expand=True, pady=50, padx=30)
+
+        # Botao para excluir a linha
+        botao_excluir_contrato = tk.Button(janela_excluir, text="Excluir Contrato", command=excluir_contrato)
+        botao_excluir_contrato.pack(padx=20, pady=20)
+
+        def excluir_contrato():
+            pass
+
         
     #função para abrir a janela com suas respectivas caracteristicas     
     def abrir_janela_adicionar(self):
