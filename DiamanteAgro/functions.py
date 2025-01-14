@@ -1,6 +1,7 @@
 from datetime import date
 from datetime import date, datetime
 import os
+import pandas as pd
 
 diretorio_atual = os.path.dirname(os.path.abspath(__file__))
 

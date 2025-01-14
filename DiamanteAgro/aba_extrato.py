@@ -319,6 +319,10 @@ class AbaBuySell:
                     df = pd.read_csv(caminho_arquivo)
                     print("tem o mes")
 
+                    #
+                    # !!!!!!!!!!!! FALTA ADICIONAR O CONTRATO EXLCUIDO EM OUTR ARQUIVO!!!!!!
+                    #
+
                     # Filtra as linhas que não correspondem ao contrato que você deseja excluir
                     df_filtrado = df[df["Trade No."].astype(int) != int(entry_excluir_contrato.get())]
                     print(df_filtrado)
