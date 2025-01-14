@@ -305,8 +305,29 @@ class AbaBuySell:
         entry_excluir_contrato.pack(expand=True, pady=50, padx=30)
 
         # Botao para excluir a linha
+
+        # loop entre os aqrquivos, a partir do nuero da linha digitado, se o numero da linha lido no loop for maior ou igual ao numero digitado
+        # o numero da linha e subtraido em um
+        
         def excluir_contrato():
-            pass
+            # Itera pelos arquivos
+            for mes in meses_nomes: 
+                caminho_arquivo = os.path.join(diretorio_atual, f"table_{mes}.csv")
+
+                if os.path.exists(caminho_arquivo):
+                    # Lê o arquivo CSV
+                    df = pd.read_csv(caminho_arquivo)
+                    print("tem o mes")
+
+                    # Filtra as linhas que não correspondem ao contrato que você deseja excluir
+                    df_filtrado = df[df["Trade No."].astype(int) != int(entry_excluir_contrato.get())]
+                    print(df_filtrado)
+                    # Salva o DataFrame atualizado de volta ao arquivo
+                    df_filtrado.to_csv(caminho_arquivo, index=False)
+
+                else:
+                    print("vai se fudeeee nao tem o mes")
+            janela_excluir.destroy()
         # cria o botao para excluir contrato
         botao_excluir_contrato = tk.Button(janela_excluir, text="Excluir Contrato", command=excluir_contrato)
         botao_excluir_contrato.pack(padx=20, pady=20)
@@ -426,16 +447,8 @@ class AbaBuySell:
             dados = {coluna: entradas[coluna].get() for coluna in columns if coluna not in except_colunas}
             
             # logica para numerar os contratos
-            tamanho = 0
-            for mes in meses_nomes: 
-                caminho_arquivo = os.path.join(diretorio_atual, f"table_{mes}.csv")
-                if os.path.exists(caminho_arquivo):
-                    dados_mes = pd.read_csv(caminho_arquivo)
-                    tamanho = tamanho + len(dados_mes)
-                else:
-                    pass
-                
-            dados["Trade No."] = tamanho + 1
+
+            dados["Trade No."] = conta_linhas + 1
 
             # Adiciona os valores exepcionais
             dados["Buy/Sell"] = self.box_buy_sell.get()

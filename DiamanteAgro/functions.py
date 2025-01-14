@@ -30,6 +30,17 @@ entradas_del_date = [
                             ("KCU7", "13-08-2027")
                             ]# entradas de codigo de datas
 
+def conta_linhas():
+    tamanho = 0
+    for mes in meses_nomes: 
+        caminho_arquivo = os.path.join(diretorio_atual, f"table_{mes}.csv")
+        if os.path.exists(caminho_arquivo):
+            dados_mes = pd.read_csv(caminho_arquivo)
+            tamanho = tamanho + len(dados_mes)
+        else:
+            pass
+    return tamanho
+
 def converte_data_float(raw_date):
 
     delivery_month_date = datetime.strptime(raw_date, "%d-%m-%Y").date()
