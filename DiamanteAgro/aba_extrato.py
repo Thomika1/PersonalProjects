@@ -310,7 +310,11 @@ class AbaBuySell:
         # o numero da linha e subtraido em um
         
         def excluir_contrato():
-            # Itera pelos arquivos
+            # Itera pelos arquivos\
+            df_excluido = pd.DataFrame(columns=columns)
+            df_excluido_true = pd.DataFrame()
+            caminho_arquivo_excluido = os.path.join(diretorio_atual, f"table_archive.csv")
+
             for mes in meses_nomes: 
                 caminho_arquivo = os.path.join(diretorio_atual, f"table_{mes}.csv")
 
@@ -319,18 +323,39 @@ class AbaBuySell:
                     df = pd.read_csv(caminho_arquivo)
                     print("tem o mes")
 
-                    #
-                    # !!!!!!!!!!!! FALTA ADICIONAR O CONTRATO EXLCUIDO EM OUTR ARQUIVO!!!!!!
-                    #
+                    df_excluido = df[df["Trade No."].astype(int) == int(entry_excluir_contrato.get())]
+                    if not df_excluido.empty:
+                        df_excluido_true = df_excluido
 
                     # Filtra as linhas que não correspondem ao contrato que você deseja excluir
                     df_filtrado = df[df["Trade No."].astype(int) != int(entry_excluir_contrato.get())]
-                    print(df_filtrado)
+                    #print(df_filtrado+"DADOS FILTRADO!!!")
                     # Salva o DataFrame atualizado de volta ao arquivo
                     df_filtrado.to_csv(caminho_arquivo, index=False)
 
                 else:
                     print("vai se fudeeee nao tem o mes")
+            
+            
+
+            # Adiciona a linha excluida em um arquivo propri
+            if os.path.exists(caminho_arquivo_excluido):
+                # Se o arquivo existe, carrega os dados existentes
+                dados_existentes_excluido = pd.read_csv(caminho_arquivo_excluido)
+                # Concatena os novos dados com os dados existentes
+                
+                if not df_excluido.empty:
+                    df_excluido_true = pd.concat([dados_existentes_excluido, df_excluido_true])
+                else:
+                    messagebox.showerror("Erro ao encontrar contrato!", "Contrato não encontrado")
+                    
+            # Salva o DataFrame (novo ou concatenado) em um arquivo CSV
+            if not df_excluido_true.empty:
+                df_excluido_true.to_csv(caminho_arquivo_excluido, index=False)
+            else:
+                print("Nenhum contrato foi excluído.")
+        
+            # Mata a janela apos excluir
             janela_excluir.destroy()
         # cria o botao para excluir contrato
         botao_excluir_contrato = tk.Button(janela_excluir, text="Excluir Contrato", command=excluir_contrato)
