@@ -360,16 +360,9 @@ class AbaBuySell:
             
             
             # AGORA FALTA REORGANIZAR AS TABELAS!!!!!!!! E OS NUMEROS DO CONTRATO
+
             self.table_completa = pd.DataFrame(columns=columns)
-
-            for mes in meses_nomes:
-                caminho_arquivo = os.path.join(diretorio_atual, f"table_{mes}.csv")
-                if os.path.exists(caminho_arquivo):
-                    dados_mes = pd.read_csv(caminho_arquivo)
-                    self.table_completa = pd.concat([self.table_completa, dados_mes], ignore_index=True)
-                else:
-                    print(f"Arquivo não encontrado para o mês {mes}. excluit ctt")
-
+            self.table_completa = le_arquivos()
 
             # Atualiza as tabelas da interface gráfica
             tabela_swap = pd.DataFrame(columns=columns)

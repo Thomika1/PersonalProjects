@@ -52,3 +52,16 @@ def converte_data_float(raw_date):
     data = delivery_month_date - date.today()
     time_in_float = data.days / 365.0
     return time_in_float
+
+def le_arquivos():
+    table_completa = pd.DataFrame(columns=columns)
+
+    for mes in meses_nomes:
+        caminho_arquivo = os.path.join(diretorio_atual, f"table_{mes}.csv")
+        if os.path.exists(caminho_arquivo):
+            dados_mes = pd.read_csv(caminho_arquivo)
+            table_completa = pd.concat([table_completa, dados_mes], ignore_index=True)
+        else:
+            print(f"Arquivo não encontrado para o mês {mes}. excluit ctt")
+    return table_completa
+    
