@@ -37,7 +37,9 @@ def conta_linhas():
         caminho_arquivo = os.path.join(diretorio_atual, f"table_{mes}.csv")
         if os.path.exists(caminho_arquivo):
             dados_mes = pd.read_csv(caminho_arquivo)
-            tamanho = tamanho + len(dados_mes)
+            if not dados_mes.empty:        
+                tamanho = tamanho + len(dados_mes)
+                print(tamanho)
         else:
             pass
     return tamanho

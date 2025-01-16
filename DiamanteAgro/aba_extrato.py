@@ -312,8 +312,10 @@ class AbaBuySell:
         def excluir_contrato():
             # Itera pelos arquivos\
             df_excluido = pd.DataFrame(columns=columns)
-            df_excluido_true = pd.DataFrame()
+            df_excluido_true = pd.DataFrame(columns=columns)
             caminho_arquivo_excluido = os.path.join(diretorio_atual, f"table_archive.csv")
+            self.table_completa = pd.DataFrame(columns=columns)
+
 
             for mes in meses_nomes: 
                 caminho_arquivo = os.path.join(diretorio_atual, f"table_{mes}.csv")
@@ -323,12 +325,17 @@ class AbaBuySell:
                     df = pd.read_csv(caminho_arquivo)
                     print("tem o mes")
 
+                    # para atualizar as tabelas exibidas
+                    
                     df_excluido = df[df["Trade No."].astype(int) == int(entry_excluir_contrato.get())]
+
                     if not df_excluido.empty:
                         df_excluido_true = df_excluido
 
                     # Filtra as linhas que não correspondem ao contrato que você deseja excluir
                     df_filtrado = df[df["Trade No."].astype(int) != int(entry_excluir_contrato.get())]
+
+                    self.table_completa = pd.concat([self.table_completa, df_filtrado], ignore_index=True)
                     #print(df_filtrado+"DADOS FILTRADO!!!")
                     # Salva o DataFrame atualizado de volta ao arquivo
                     df_filtrado.to_csv(caminho_arquivo, index=False)
@@ -336,26 +343,47 @@ class AbaBuySell:
                 else:
                     print("vai se fudeeee nao tem o mes")
             
-            
-
             # Adiciona a linha excluida em um arquivo propri
+            print(df_excluido_true)
             if os.path.exists(caminho_arquivo_excluido):
                 # Se o arquivo existe, carrega os dados existentes
                 dados_existentes_excluido = pd.read_csv(caminho_arquivo_excluido)
+                print(dados_existentes_excluido)
                 # Concatena os novos dados com os dados existentes
-                
-                if not df_excluido.empty:
-                    df_excluido_true = pd.concat([dados_existentes_excluido, df_excluido_true])
-                else:
-                    messagebox.showerror("Erro ao encontrar contrato!", "Contrato não encontrado")
-                    
-            # Salva o DataFrame (novo ou concatenado) em um arquivo CSV
-            if not df_excluido_true.empty:
+                df_excluido_true = pd.concat([dados_existentes_excluido, df_excluido_true]) 
+                print(df_excluido_true)
                 df_excluido_true.to_csv(caminho_arquivo_excluido, index=False)
-            else:
-                print("Nenhum contrato foi excluído.")
-        
-            # Mata a janela apos excluir
+
+            elif not os.path.exists(caminho_arquivo_excluido):
+                print("VAI TOMA NO CU")
+                df_excluido_true.to_csv(caminho_arquivo_excluido, index=False)
+            
+            
+            # AGORA FALTA REORGANIZAR AS TABELAS!!!!!!!! E OS NUMEROS DO CONTRATO
+            self.table_completa = pd.DataFrame(columns=columns)
+
+            for mes in meses_nomes:
+                caminho_arquivo = os.path.join(diretorio_atual, f"table_{mes}.csv")
+                if os.path.exists(caminho_arquivo):
+                    dados_mes = pd.read_csv(caminho_arquivo)
+                    self.table_completa = pd.concat([self.table_completa, dados_mes], ignore_index=True)
+                else:
+                    print(f"Arquivo não encontrado para o mês {mes}. excluit ctt")
+
+
+            # Atualiza as tabelas da interface gráfica
+            tabela_swap = pd.DataFrame(columns=columns)
+            tabela_option = pd.DataFrame(columns=columns)
+
+            tabela_swap = self.table_completa[self.table_completa["Swap/Option"].str.lower() == "swap"]
+            tabela_option = self.table_completa[self.table_completa["Swap/Option"].str.lower() == "option"]
+
+            self.table_swap.updateModel(TableModel(tabela_swap))
+            self.table_swap.redraw()
+
+            self.table_option.updateModel(TableModel(tabela_option))
+            self.table_option.redraw()
+
             janela_excluir.destroy()
         # cria o botao para excluir contrato
         botao_excluir_contrato = tk.Button(janela_excluir, text="Excluir Contrato", command=excluir_contrato)
@@ -397,11 +425,9 @@ class AbaBuySell:
                 # Armazena a entrada no dicionário
                 entradas[coluna] = entrada
 
-
         def remove_selection(event):
             # Remove a seleção de texto ao alterar o valor na combobox
            event.widget.selection_clear()
-
 
         # Combobox de expire dates
         frame_box_exp = tk.Frame(janela_adicionar)
@@ -477,7 +503,8 @@ class AbaBuySell:
             
             # logica para numerar os contratos
 
-            dados["Trade No."] = conta_linhas + 1
+            
+            dados["Trade No."] = conta_linhas()+ 1
 
             # Adiciona os valores exepcionais
             dados["Buy/Sell"] = self.box_buy_sell.get()
