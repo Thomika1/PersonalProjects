@@ -355,22 +355,46 @@ class AbaBuySell:
                 df_excluido_true.to_csv(caminho_arquivo_excluido, index=False)
 
             elif not os.path.exists(caminho_arquivo_excluido):
-                print("VAI TOMA NO CU")
+                
                 df_excluido_true.to_csv(caminho_arquivo_excluido, index=False)
             
             
             # AGORA FALTA REORGANIZAR AS TABELAS!!!!!!!! E OS NUMEROS DO CONTRATO
-
             self.table_completa = pd.DataFrame(columns=columns)
             self.table_completa = le_arquivos()
 
+            # Ordena a tabela dos arquivos excluidos
+            tabela_archive = pd.read_csv(caminho_arquivo_excluido)
+            tabela_archive = tabela_archive.sort_values(by="Trade No.")
+            tabela_archive.to_csv(caminho_arquivo_excluido, index=False)
+
+
+            # Tabela completa numero precisa ser ordenaod aqui
+            valor_excluir = int(entry_excluir_contrato.get())
+            self.table_completa["Trade No."] = self.table_completa["Trade No."].apply(lambda x: int(x - 1) if x > valor_excluir else int(x))
+
+
+            # Ordena a tabela em ordem crescente
+            self.table_completa = self.table_completa.sort_values(by="Trade No.")
+
+            for mes, dados_mes in self.table_completa.groupby("Delivery Month"):
+            # Define o nome do arquivo com base no número do mês
+                nome_arquivo = f"table_{mes}.csv"
+                caminho_arquivo = os.path.join(diretorio_atual, nome_arquivo)
+            # Verifica se o arquivo já existe
+                if os.path.exists(caminho_arquivo):
+                    dados_mes.to_csv(caminho_arquivo, index=False)
+            
+            
             # Atualiza as tabelas da interface gráfica
             tabela_swap = pd.DataFrame(columns=columns)
             tabela_option = pd.DataFrame(columns=columns)
 
+            self.table_completa["Trade No."] = self.table_completa["Trade No."].astype(int)
+
             tabela_swap = self.table_completa[self.table_completa["Swap/Option"].str.lower() == "swap"]
             tabela_option = self.table_completa[self.table_completa["Swap/Option"].str.lower() == "option"]
-
+            
             self.table_swap.updateModel(TableModel(tabela_swap))
             self.table_swap.redraw()
 
@@ -378,6 +402,7 @@ class AbaBuySell:
             self.table_option.redraw()
 
             janela_excluir.destroy()
+
         # cria o botao para excluir contrato
         botao_excluir_contrato = tk.Button(janela_excluir, text="Excluir Contrato", command=excluir_contrato)
         botao_excluir_contrato.pack(padx=20, pady=20)
@@ -523,14 +548,19 @@ class AbaBuySell:
             if dados["Swap/Option"].lower() == "swap":
                 dados["Premium (Eq USD)"] = 0
             
+            # Ajsuta data
             data_no_split = self.box_del_janela_add.get()
             data_split = data_no_split.split()
             data_true = data_split[1]
             dados["Expire Date"] = data_true
 
+            self.table = pd.DataFrame(columns=columns)
             # Converte os dados em DataFrame e concatena com self.table
             nova_linha = pd.DataFrame([dados])
             self.table = pd.concat([self.table, nova_linha], ignore_index=True)
+            
+            self.table2 = le_arquivos()
+
 
             
             # Atualiza as visualizações específicas para swap e option
@@ -553,7 +583,6 @@ class AbaBuySell:
 
     #função salva as tabelas
     def salvar_tabelas(self):
-        diretorio_atual = os.path.dirname(os.path.abspath(__file__))
     
         # Verifica se a coluna "Delivery Month" existe na tabela
         if "Delivery Month" not in self.table.columns:
