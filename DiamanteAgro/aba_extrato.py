@@ -5,6 +5,7 @@ import tkinter as tk
 from tkinter import ttk
 from pandastable import Table, TableModel
 from tkinter import messagebox
+from aba_calculo_pl import *
 import re
 import os
 
@@ -40,12 +41,11 @@ class AbaBuySell:
                                                   command=self.abrir_janela_adicionar, width=20)
         self.botao_adicionar_contrato.pack(side="left",padx=5,pady=5)
         
-        #botão para abrir a janela de exibição das tabelas por mes
+        # Botão para abrir a janela de exibição das tabelas por mes
         self.botao_excluir_contrato = tk.Button(self.frame_botao_1, text='Excluir contrato',
                                                   command=self.abrir_janela_excluir_contrato, width=20)
         self.botao_excluir_contrato.pack(side = "left",padx=5, pady=5)
 
-        
         # Frame para as entrys
         self.frame_entries = tk.Frame(self.frame_botao_2)
         self.frame_entries.pack(side="top")
@@ -93,7 +93,8 @@ class AbaBuySell:
         # Criação da tabela de options com filtro
         self.table_option = Table(frame_table_option, dataframe=self.table[self.table["Swap/Option"] == "option"],
                                   showtoolbar=True, showstatusbar=True)
-    
+
+
 
         # Carrega e exibe as tabelas
         self.carregar_tabelas()
@@ -241,18 +242,18 @@ class AbaBuySell:
             if os.path.exists(caminho_arquivo):
                 # Carrega o arquivo para atualizar a coluna específica
                 dados_mes = pd.read_csv(caminho_arquivo)
-
-                dados_mes["Sett. Price"] = self.sett_price
-                #chama as funcoes apply para alterar as colunas especificas
-                dados_mes["MTM (Eq USD)"] = dados_mes.apply(logica_apply_mtm, axis=1)  
-                dados_mes["Delta"] = dados_mes.astype(object).apply(logica_apply_delta, axis=1)
-                dados_mes["Gamma"] = dados_mes.astype(object).apply(logica_apply_gamma, axis=1)
-                dados_mes["Vega"] = dados_mes.astype(object).apply(logica_apply_vega, axis=1)
-                dados_mes["Theta"] = dados_mes.astype(object).apply(logica_apply_theta, axis=1)
-                dados_mes["Rho"] = dados_mes.astype(object).apply(logica_apply_rho, axis=1)
+                if not dados_mes.empty:
+                    dados_mes["Sett. Price"] = self.sett_price
+                    #chama as funcoes apply para alterar as colunas especificas
+                    dados_mes["MTM (Eq USD)"] = dados_mes.apply(logica_apply_mtm, axis=1)  
+                    dados_mes["Delta"] = dados_mes.astype(object).apply(logica_apply_delta, axis=1)
+                    dados_mes["Gamma"] = dados_mes.astype(object).apply(logica_apply_gamma, axis=1)
+                    dados_mes["Vega"] = dados_mes.astype(object).apply(logica_apply_vega, axis=1)
+                    dados_mes["Theta"] = dados_mes.astype(object).apply(logica_apply_theta, axis=1)
+                    dados_mes["Rho"] = dados_mes.astype(object).apply(logica_apply_rho, axis=1)
                 
                 # Salva o arquivo atualizado
-                dados_mes.to_csv(caminho_arquivo, index=False)
+                    dados_mes.to_csv(caminho_arquivo, index=False)
             else:
                 print(f"Arquivo não encontrado para o mês {mes}.")
 
@@ -407,8 +408,6 @@ class AbaBuySell:
         botao_excluir_contrato = tk.Button(janela_excluir, text="Excluir Contrato", command=excluir_contrato)
         botao_excluir_contrato.pack(padx=20, pady=20)
 
-
-        
     #função para abrir a janela com suas respectivas caracteristicas     
     def abrir_janela_adicionar(self):
         # Verifica se já existe uma janela aberta com o título "Adicionar Contrato"
@@ -575,6 +574,8 @@ class AbaBuySell:
 
             self.salvar_tabelas()
             # Fecha a janela após adicionar o contrato
+            
+            
             janela_adicionar.destroy()
 
         # Botão para adicionar contrato e fechar a janela
