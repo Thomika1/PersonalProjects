@@ -545,6 +545,7 @@ class AbaBuySell:
 
             # Independente do que for digitado em premium o valor eh ajustado para 0 no caso swap
             if dados["Swap/Option"].lower() == "swap":
+                dados["Product Type"] = None
                 dados["Premium (Eq USD)"] = 0
             
             # Ajsuta data

@@ -5,7 +5,8 @@ import pandas as pd
 
 diretorio_atual = os.path.dirname(os.path.abspath(__file__))
 
-except_colunas = ["Sett. Price", "Delta", "MTM (Eq USD)",'Gamma', 'Vega','Theta', 'Rho', 'Expire Date', 'Delivery Month', "Long", "Short", "Product Type", "Buy/Sell", "Swap/Option", "Ccy", "Underlying", "Trade No."]
+except_colunas = ["Sett. Price", "Delta", "MTM (Eq USD)",'Gamma', 'Vega','Theta', 'Rho', 'Expire Date', 'Delivery Month', 
+                  "Long", "Short", "Product Type", "Buy/Sell", "Swap/Option", "Ccy", "Underlying"]
 
 meses_nomes = ["Janeiro", "Fevereiro", "Marco", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outrubro", "Novembro", "Dezembro"]
 
