@@ -364,19 +364,7 @@ class AbaBuySell:
             self.table_completa = pd.DataFrame(columns=columns)
             self.table_completa = le_arquivos()
 
-            # Ordena a tabela dos arquivos excluidos
-            tabela_archive = pd.read_csv(caminho_arquivo_excluido)
-            tabela_archive = tabela_archive.sort_values(by="Trade No.")
-            tabela_archive.to_csv(caminho_arquivo_excluido, index=False)
-
-
-            # Tabela completa numero precisa ser ordenaod aqui
-            valor_excluir = int(entry_excluir_contrato.get())
-            self.table_completa["Trade No."] = self.table_completa["Trade No."].apply(lambda x: int(x - 1) if x > valor_excluir else int(x))
-
-
             # Ordena a tabela em ordem crescente
-            self.table_completa = self.table_completa.sort_values(by="Trade No.")
 
             for mes, dados_mes in self.table_completa.groupby("Delivery Month"):
             # Define o nome do arquivo com base no número do mês

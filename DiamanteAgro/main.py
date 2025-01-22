@@ -15,7 +15,7 @@ class SistemaGUI:
     def __init__(self, root):
         # Configurações gerais da interface principal
         self.root = root
-        self.root.title("Sistema de Gestão Financeira")
+        self.root.title("Sistema de Gestão de Contratos")
         
         largura = self.root.winfo_screenwidth()
         altura = self.root.winfo_screenheight()
