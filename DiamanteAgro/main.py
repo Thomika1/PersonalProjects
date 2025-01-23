@@ -9,6 +9,7 @@ from aba_calculo_pl import AbaCalculoPL
 pd.set_option('future.no_silent_downcasting', True)
 warnings.filterwarnings("ignore", category=FutureWarning)
 pd.set_option('display.float_format', '{:.2f}'.format)
+pd.set_option("display.max_rows", None)
 
 # inicializa as abas
 class SistemaGUI:

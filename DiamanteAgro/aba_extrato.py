@@ -9,11 +9,13 @@ from aba_calculo_pl import *
 import re
 import os
 
+
 class AbaBuySell:
 
     def __init__(self, notebook):
         # Cria o frame da aba
         self.frame = ttk.Frame(notebook)
+
 
         self.label = tk.Label(self.frame, text="Extrato")
         self.label.pack(side="top")
@@ -26,6 +28,9 @@ class AbaBuySell:
 
         self.frame_botao_3 = tk.Frame(self.frame)
         self.frame_botao_3.pack(side="top")
+
+        self.frame_botao_4 = tk.Frame(self.frame)
+        self.frame_botao_4.pack(side="top")
 
         # Inicializa a janela adiconar contrato
         
@@ -76,30 +81,72 @@ class AbaBuySell:
 
         self.botao_atualizar = tk.Button(self.frame_botao_atualizar, text="Atualizar Tabela", command=self.botao_alterar_tabelas_price_vol)
         self.botao_atualizar.pack(padx=5, pady=5)
+
+
+        self.framebox_tabela_1 = tk.Frame(self.frame_botao_4)
+        self.framebox_tabela_1.pack()
+
+        # Combobox para definir as tabelas exibidas
+        self.box_tabela_1 = ttk.Combobox(self.frame_botao_4, values=meses_nomes)
+        self.box_tabela_1.pack(padx=5, pady=5, side="left")
+        
+        self.box_tabela_2 = ttk.Combobox(self.frame_botao_4, values=meses_nomes)
+        self.box_tabela_2.pack(padx=5, pady=5, side="left")
+
         
 
+        # Frame para a tabela de cima (option)
+        self.frame_topo = tk.Frame(self.frame)
+        self.frame_topo.pack(expand=True, fill='both', side="bottom")
+
+        # Frame para a tabela de baixo (swap)
+        self.frame_baixo = tk.Frame(self.frame)
+        self.frame_baixo.pack(expand=True, fill='both', side="bottom")
+        # -------------------------------------------------------------
+
+
+
+
         # Frame para a tabela de swap
-        frame_table_swap = tk.Frame(self.frame)
-        frame_table_swap.pack(expand=True, fill='both', side="bottom")
+        frame_table_swap = tk.Frame(self.frame_topo)
+        frame_table_swap.pack(expand=True, fill='both', side="left")
         
         # Criação da tabela de swap com filtro
         self.table_swap = Table(frame_table_swap, dataframe=self.table[self.table["Swap/Option"] == "swap"],
                                 showtoolbar=True, showstatusbar=True)
         
+        # Frame para a segunda tabela de swap
+        frame_table_swap_2 = tk.Frame(self.frame_topo)
+        frame_table_swap_2.pack(expand=True, fill='both', side="left")
+
+        # Criacao da segunda tabela swap
+        self.table_swap_2 = Table(frame_table_swap_2, dataframe = self.table[self.table["Swap/Option"] == "swap"],
+                                  showtoolbar=True, showstatusbar=True)
+        
+        
         # Frame para a tabela de options
-        frame_table_option = tk.Frame(self.frame)
-        frame_table_option.pack(expand=True, fill='both',side="bottom")
+        frame_table_option = tk.Frame(self.frame_baixo)
+        frame_table_option.pack(expand=True, fill='both',side="left")
         
         # Criação da tabela de options com filtro
         self.table_option = Table(frame_table_option, dataframe=self.table[self.table["Swap/Option"] == "option"],
                                   showtoolbar=True, showstatusbar=True)
 
+        # Frame para a segunda tabela de options
+        frame_table_option_2 = tk.Frame(self.frame_baixo)
+        frame_table_option_2.pack(expand=True, fill="both", side="left")
+
+        # Criacao da segunda tabela de options com filtro
+        self.table_option_2 = Table(frame_table_option_2, dataframe=self.table[self.table["Swap/Option"] == "option"],
+                                  showtoolbar=True, showstatusbar=True)
 
 
         # Carrega e exibe as tabelas
         self.carregar_tabelas()
         self.table_swap.show()
+        self.table_swap_2.show()
         self.table_option.show()
+        self.table_option_2.show()
         
     def botao_alterar_tabelas_price_vol(self):  # Ação do botão para alterar os dados da tabela
         # Lógica para aplicar a volatilidade para a linha
@@ -619,8 +666,15 @@ class AbaBuySell:
             self.table_swap.updateModel(TableModel(self.table2[self.table2["Swap/Option"].str.lower() == "swap"]))
             self.table_swap.redraw()
 
+            self.table_swap_2.updateModel(TableModel(self.table2[self.table2["Swap/Option"].str.lower() == "swap"]))
+            self.table_swap_2.redraw()
+
             # Atualiza o modelo para a tabela de option
             self.table_option.updateModel(TableModel(self.table2[self.table2["Swap/Option"].str.lower() == "option"]))
             self.table_option.redraw()
+
+            self.table_option_2.updateModel(TableModel(self.table2[self.table2["Swap/Option"].str.lower() == "option"]))
+            self.table_option_2.redraw()
+
         else:
             print("Nenhum dado foi carregado; os arquivos CSV mensais podem não existir.")
