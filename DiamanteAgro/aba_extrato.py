@@ -82,7 +82,7 @@ class AbaBuySell:
         self.botao_atualizar = tk.Button(self.frame_botao_atualizar, text="Atualizar Tabela", command=self.botao_alterar_tabelas_price_vol)
         self.botao_atualizar.pack(padx=5, pady=5)
 
-
+        # Frame para as combobox dos meses
         self.framebox_tabela_1 = tk.Frame(self.frame_botao_4)
         self.framebox_tabela_1.pack()
 
@@ -93,8 +93,6 @@ class AbaBuySell:
         self.box_tabela_2 = ttk.Combobox(self.frame_botao_4, values=meses_nomes)
         self.box_tabela_2.pack(padx=5, pady=5, side="left")
 
-        
-
         # Frame para a tabela de cima (option)
         self.frame_topo = tk.Frame(self.frame)
         self.frame_topo.pack(expand=True, fill='both', side="bottom")
@@ -103,9 +101,6 @@ class AbaBuySell:
         self.frame_baixo = tk.Frame(self.frame)
         self.frame_baixo.pack(expand=True, fill='both', side="bottom")
         # -------------------------------------------------------------
-
-
-
 
         # Frame para a tabela de swap
         frame_table_swap = tk.Frame(self.frame_topo)
@@ -141,6 +136,7 @@ class AbaBuySell:
                                   showtoolbar=True, showstatusbar=True)
 
 
+
         # Carrega e exibe as tabelas
         self.carregar_tabelas()
         self.table_swap.show()
@@ -148,6 +144,89 @@ class AbaBuySell:
         self.table_option.show()
         self.table_option_2.show()
         
+        # Relacionar evento de clicar na combobox com a funcao de alterar as tabelas
+        self.box_tabela_1.bind("<<ComboboxSelected>>", self.altera_exibicao_tabela_1)
+        self.box_tabela_2.bind("<<ComboboxSelected>>", self.altera_exibicao_tabela_2)
+
+    
+    def altera_exibicao_tabela_1(self, event):
+        # Coleta o valor selecionado na combobox
+        mes_selecionado = self.box_tabela_1.get()
+        
+
+        # Salva os arquivos existentes nessa variavel 
+        arquivos_geral = le_arquivos()
+
+
+        # Atualiza o modelo da tabela com o dataframe filtrado para swap
+        df_filtrado_swap = arquivos_geral[
+        (arquivos_geral["Swap/Option"].str.lower() == "swap") & 
+        (arquivos_geral["Delivery Month"] == mes_selecionado)
+        ]
+       
+        if not df_filtrado_swap.empty:
+            self.table_swap.updateModel(TableModel(df_filtrado_swap))
+            self.table_swap.redraw()
+        else: 
+            df_filtrado_swap = pd.DataFrame(columns=columns)
+            self.table_swap.updateModel(TableModel(df_filtrado_swap))
+            self.table_swap.redraw()
+
+
+        # Atualiza o modelo da tabela com o dataframe filtrado de options
+        df_filtrado_option = arquivos_geral[
+        (arquivos_geral["Swap/Option"].str.lower() == "option") & 
+        (arquivos_geral["Delivery Month"] == mes_selecionado)
+        ]
+        print(df_filtrado_option)
+        if not df_filtrado_option.empty:
+            self.table_option.updateModel(TableModel(df_filtrado_option))
+            self.table_option.redraw()
+        else:
+            df_filtrado_option = pd.DataFrame(columns=columns)
+            self.table_option.updateModel(TableModel(df_filtrado_option))
+            self.table_option.redraw() 
+
+
+
+    def altera_exibicao_tabela_2(self, event):
+        # Coleta o valor selecionado na combobox
+        mes_selecionado = self.box_tabela_2.get()
+
+        arquivos_geral = le_arquivos()
+
+        # Atualiza o modelo da tabela com o dataframe filtrado para swap
+        df_filtrado_swap = arquivos_geral[
+        (arquivos_geral["Swap/Option"].str.lower() == "swap") & 
+        (arquivos_geral["Delivery Month"] == mes_selecionado)
+        ]
+       
+        if not df_filtrado_swap.empty:
+            self.table_swap_2.updateModel(TableModel(df_filtrado_swap))
+            self.table_swap_2.redraw()
+        else: 
+            df_filtrado_swap = pd.DataFrame(columns=columns)
+            self.table_swap_2.updateModel(TableModel(df_filtrado_swap))
+            self.table_swap_2.redraw()
+
+
+        # Atualiza o modelo da tabela com o dataframe filtrado de options
+        df_filtrado_option = arquivos_geral[
+        (arquivos_geral["Swap/Option"].str.lower() == "option") & 
+        (arquivos_geral["Delivery Month"] == mes_selecionado)
+        ]
+        print(df_filtrado_option)
+        if not df_filtrado_option.empty:
+            self.table_option_2.updateModel(TableModel(df_filtrado_option))
+            self.table_option_2.redraw()
+        else:
+            df_filtrado_option = pd.DataFrame(columns=columns)
+            self.table_option_2.updateModel(TableModel(df_filtrado_option))
+            self.table_option_2.redraw() 
+
+
+
+
     def botao_alterar_tabelas_price_vol(self):  # Ação do botão para alterar os dados da tabela
         # Lógica para aplicar a volatilidade para a linha
         def logica_apply_mtm(linha):
