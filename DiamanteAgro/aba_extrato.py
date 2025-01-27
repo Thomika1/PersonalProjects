@@ -149,7 +149,7 @@ class AbaBuySell:
         self.box_tabela_2.bind("<<ComboboxSelected>>", self.altera_exibicao_tabela_2)
 
     
-    def altera_exibicao_tabela_1(self, event):
+    def altera_exibicao_tabela_1(self, event): # Funcao para alterar a exibicao da tabela 2
         # Coleta o valor selecionado na combobox
         mes_selecionado = self.box_tabela_1.get()
         
@@ -187,9 +187,7 @@ class AbaBuySell:
             self.table_option.updateModel(TableModel(df_filtrado_option))
             self.table_option.redraw() 
 
-
-
-    def altera_exibicao_tabela_2(self, event):
+    def altera_exibicao_tabela_2(self, event): # Funcao para alterar a exibicao da tabela 2
         # Coleta o valor selecionado na combobox
         mes_selecionado = self.box_tabela_2.get()
 
@@ -223,9 +221,6 @@ class AbaBuySell:
             df_filtrado_option = pd.DataFrame(columns=columns)
             self.table_option_2.updateModel(TableModel(df_filtrado_option))
             self.table_option_2.redraw() 
-
-
-
 
     def botao_alterar_tabelas_price_vol(self):  # Ação do botão para alterar os dados da tabela
         # Lógica para aplicar a volatilidade para a linha
@@ -394,14 +389,37 @@ class AbaBuySell:
 
         # Atualiza as tabelas da interface gráfica
         if not self.table_completa.empty:
-            tabela_swap = self.table_completa[self.table_completa["Swap/Option"].str.lower() == "swap"]
-            tabela_option = self.table_completa[self.table_completa["Swap/Option"].str.lower() == "option"]
+            
+            # Atualizando os valores da primeira tabela
+            tabela_swap = self.table_completa[
+            (self.table_completa["Swap/Option"].str.lower() == "swap") & 
+            (self.table_completa["Delivery Month"] == self.box_tabela_1.get())]
+
+            tabela_option = self.table_completa[
+            (self.table_completa["Swap/Option"].str.lower() == "option") & 
+            (self.table_completa["Delivery Month"] == self.box_tabela_1.get())]
 
             self.table_swap.updateModel(TableModel(tabela_swap))
             self.table_swap.redraw()
 
             self.table_option.updateModel(TableModel(tabela_option))
             self.table_option.redraw()
+
+            # Atualizando os valores da segunda tabela
+            tabela_swap_2 = self.table_completa[
+            (self.table_completa["Swap/Option"].str.lower() == "swap") & 
+            (self.table_completa["Delivery Month"] == self.box_tabela_2.get())]
+
+            tabela_option_2 = self.table_completa[
+            (self.table_completa["Swap/Option"].str.lower() == "option") & 
+            (self.table_completa["Delivery Month"] == self.box_tabela_2.get())]
+
+            self.table_swap_2.updateModel(TableModel(tabela_swap_2))
+            self.table_swap_2.redraw()
+
+            self.table_option_2.updateModel(TableModel(tabela_option_2))
+            self.table_option_2.redraw()
+
             
         print("Tabelas atualizadas com sucesso.")
 
@@ -507,15 +525,41 @@ class AbaBuySell:
 
             self.table_completa["Trade No."] = self.table_completa["Trade No."].astype(int)
 
-            tabela_swap = self.table_completa[self.table_completa["Swap/Option"].str.lower() == "swap"]
-            tabela_option = self.table_completa[self.table_completa["Swap/Option"].str.lower() == "option"]
-            
+            # Atualizando a primeira tabela
+            tabela_swap = self.table_completa[
+            (self.table_completa["Swap/Option"].str.lower() == "swap") & 
+            (self.table_completa["Delivery Month"] == self.box_tabela_1.get())
+            ]
+
+            tabela_option = self.table_completa[
+            (self.table_completa["Swap/Option"].str.lower() == "option") & 
+            (self.table_completa["Delivery Month"] == self.box_tabela_1.get())
+            ]
+
             self.table_swap.updateModel(TableModel(tabela_swap))
             self.table_swap.redraw()
 
             self.table_option.updateModel(TableModel(tabela_option))
             self.table_option.redraw()
 
+            # Atualizando a segunda tabela
+            tabela_swap_2 = self.table_completa[
+            (self.table_completa["Swap/Option"].str.lower() == "swap") & 
+            (self.table_completa["Delivery Month"] == self.box_tabela_2.get())
+            ]
+
+            tabela_option_2 = self.table_completa[
+            (self.table_completa["Swap/Option"].str.lower() == "option") & 
+            (self.table_completa["Delivery Month"] == self.box_tabela_2.get())
+            ]
+            
+            self.table_swap_2.updateModel(TableModel(tabela_swap_2))
+            self.table_swap_2.redraw()
+
+            self.table_option_2.updateModel(TableModel(tabela_option_2))
+            self.table_option_2.redraw()
+
+            # Fecha a janela
             janela_excluir.destroy()
 
         # cria o botao para excluir contrato
@@ -680,12 +724,20 @@ class AbaBuySell:
             # Atualiza as visualizações específicas para swap e option
             self.table_junto = pd.concat([self.table, self.table2], ignore_index=True)
             
-            if dados["Swap/Option"].lower() == "swap":
+            if (dados["Swap/Option"].lower() == "swap") & (dados["Delivery Month"] == self.box_tabela_1.get()):
                 self.table_swap.updateModel(TableModel(self.table_junto[self.table_junto["Swap/Option"].str.lower() == "swap"]))
                 self.table_swap.redraw()
-            elif dados["Swap/Option"].lower() == "option":
+            elif (dados["Swap/Option"].lower() == "option") & (dados["Delivery Month"] == self.box_tabela_1.get()):
                 self.table_option.updateModel(TableModel(self.table_junto[self.table_junto["Swap/Option"].str.lower() == "option"]))
                 self.table_option.redraw()
+            elif (dados["Swap/Option"].lower() == "swap") & (dados["Delivery Month"] == self.box_tabela_2.get()):
+                self.table_swap_2.updateModel(TableModel(self.table_junto[self.table_junto["Swap/Option"].str.lower() == "swap"]))
+                self.table_swap_2.redraw()
+            elif (dados["Swap/Option"].lower() == "option") & (dados["Delivery Month"] == self.box_tabela_2.get()):
+                self.table_option_2.updateModel(TableModel(self.table_junto[self.table_junto["Swap/Option"].str.lower() == "option"]))
+                self.table_option_2.redraw()
+
+
 
             self.salvar_tabelas()
             # Fecha a janela após adicionar o contrato
