@@ -55,32 +55,49 @@ class AbaBuySell:
         self.frame_entries = tk.Frame(self.frame_botao_2)
         self.frame_entries.pack(side="top")
 
-        # Entrys para sett price
+        # frame para entries tabela 1
         self.frame_sett_price = tk.Frame(self.frame_entries)
         self.frame_sett_price.pack(side="left", padx=10)
 
-        self.label_sett_price = tk.Label(self.frame_sett_price, text="Sett Price:")
-        self.label_sett_price.pack(side="top", padx=5, pady=5)
+        self.label_vol_2 = tk.Label(self.frame_sett_price, text="Vol tabela 1:")
+        self.label_vol_2.pack(side="top", padx=5, pady=5)
 
-        self.entry_sett_price = tk.Entry(self.frame_sett_price)
-        self.entry_sett_price.pack(side="top", padx=5, pady=5)
+        self.entry_vol_2 = tk.Entry(self.frame_sett_price)
+        self.entry_vol_2.pack(side="top", padx=5, pady=5)
 
-        # Entrys para vol
+        self.label_sett_price_2 = tk.Label(self.frame_sett_price, text="Sett Price tabela 1:")
+        self.label_sett_price_2.pack(side="top", padx=5, pady=5)
+
+        self.entry_sett_price_2 = tk.Entry(self.frame_sett_price)
+        self.entry_sett_price_2.pack(side="top", padx=5, pady=5)
+
+        # Frame para entries tabela 2
         self.frame_vol = tk.Frame(self.frame_entries)
         self.frame_vol.pack(side="left", padx=10)
 
-        self.label_vol = tk.Label(self.frame_vol, text="Vol:")
+        self.label_vol = tk.Label(self.frame_vol, text="Vol tabela 2:")
         self.label_vol.pack(side="top", padx=5, pady=5)
 
         self.entry_vol = tk.Entry(self.frame_vol)
         self.entry_vol.pack(side="top", padx=5, pady=5)
-        
+
+        self.label_sett_price = tk.Label(self.frame_vol, text="Sett Price tabela 2:")
+        self.label_sett_price.pack(side="top", padx=5, pady=5)
+
+        self.entry_sett_price = tk.Entry(self.frame_vol)
+        self.entry_sett_price.pack(side="top", padx=5, pady=5)
+
+
+
         # Frame e botao para atualizar as tabelas
         self.frame_botao_atualizar = tk.Frame(self.frame_botao_3)
         self.frame_botao_atualizar.pack()
 
-        self.botao_atualizar = tk.Button(self.frame_botao_atualizar, text="Atualizar Tabela", command=self.botao_alterar_tabelas_price_vol)
-        self.botao_atualizar.pack(padx=5, pady=5)
+        self.botao_atualizar = tk.Button(self.frame_botao_atualizar, text="Atualizar Tabela 1", command=self.botao_alterar_tabelas_price_vol)
+        self.botao_atualizar.pack(side="left",padx=40, pady=5)
+
+        self.botao_atualizar_2 = tk.Button(self.frame_botao_atualizar, text="Atualizar Tabela 2", command=self.botao_alterar_tabelas_price_vol)
+        self.botao_atualizar_2.pack(side="left",padx=40, pady=5)
 
         # Frame para as combobox dos meses
         self.framebox_tabela_1 = tk.Frame(self.frame_botao_4)
@@ -364,17 +381,20 @@ class AbaBuySell:
                 # Carrega o arquivo para atualizar a coluna específica
                 dados_mes = pd.read_csv(caminho_arquivo)
                 if not dados_mes.empty:
-                    dados_mes["Sett. Price"] = self.sett_price
-                    #chama as funcoes apply para alterar as colunas especificas
-                    dados_mes["MTM (Eq USD)"] = dados_mes.apply(logica_apply_mtm, axis=1)  
-                    dados_mes["Delta"] = dados_mes.astype(object).apply(logica_apply_delta, axis=1)
-                    dados_mes["Gamma"] = dados_mes.astype(object).apply(logica_apply_gamma, axis=1)
-                    dados_mes["Vega"] = dados_mes.astype(object).apply(logica_apply_vega, axis=1)
-                    dados_mes["Theta"] = dados_mes.astype(object).apply(logica_apply_theta, axis=1)
-                    dados_mes["Rho"] = dados_mes.astype(object).apply(logica_apply_rho, axis=1)
+                    condicao = (dados_mes["Delivery Month"] == self.box_tabela_1.get()) | \
+                    (dados_mes["Delivery Month"] == self.box_tabela_2.get())
+
+                    if condicao.any():
+                        #chama as funcoes apply para alterar as colunas especificas
+                        dados_mes["MTM (Eq USD)"] = dados_mes.apply(logica_apply_mtm, axis=1)  
+                        dados_mes["Delta"] = dados_mes.astype(object).apply(logica_apply_delta, axis=1)
+                        dados_mes["Gamma"] = dados_mes.astype(object).apply(logica_apply_gamma, axis=1)
+                        dados_mes["Vega"] = dados_mes.astype(object).apply(logica_apply_vega, axis=1)
+                        dados_mes["Theta"] = dados_mes.astype(object).apply(logica_apply_theta, axis=1)
+                        dados_mes["Rho"] = dados_mes.astype(object).apply(logica_apply_rho, axis=1)
                 
-                # Salva o arquivo atualizado
-                    dados_mes.to_csv(caminho_arquivo, index=False)
+                        # Salva o arquivo atualizado
+                        dados_mes.to_csv(caminho_arquivo, index=False)
             else:
                 print(f"Arquivo não encontrado para o mês {mes}.")
 
