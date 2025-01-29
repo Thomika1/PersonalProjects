@@ -56,36 +56,36 @@ class AbaBuySell:
         self.frame_entries.pack(side="top")
 
         # frame para entries tabela 1
-        self.frame_sett_price = tk.Frame(self.frame_entries)
-        self.frame_sett_price.pack(side="left", padx=10)
+        self.frame_sett_vol = tk.Frame(self.frame_entries)
+        self.frame_sett_vol.pack(side="left", padx=10)
 
-        self.label_vol_2 = tk.Label(self.frame_sett_price, text="Vol tabela 1:")
-        self.label_vol_2.pack(side="top", padx=5, pady=5)
-
-        self.entry_vol_2 = tk.Entry(self.frame_sett_price)
-        self.entry_vol_2.pack(side="top", padx=5, pady=5)
-
-        self.label_sett_price_2 = tk.Label(self.frame_sett_price, text="Sett Price tabela 1:")
-        self.label_sett_price_2.pack(side="top", padx=5, pady=5)
-
-        self.entry_sett_price_2 = tk.Entry(self.frame_sett_price)
-        self.entry_sett_price_2.pack(side="top", padx=5, pady=5)
-
-        # Frame para entries tabela 2
-        self.frame_vol = tk.Frame(self.frame_entries)
-        self.frame_vol.pack(side="left", padx=10)
-
-        self.label_vol = tk.Label(self.frame_vol, text="Vol tabela 2:")
+        self.label_vol = tk.Label(self.frame_sett_vol, text="Vol tabela 1:")
         self.label_vol.pack(side="top", padx=5, pady=5)
 
-        self.entry_vol = tk.Entry(self.frame_vol)
+        self.entry_vol = tk.Entry(self.frame_sett_vol)
         self.entry_vol.pack(side="top", padx=5, pady=5)
 
-        self.label_sett_price = tk.Label(self.frame_vol, text="Sett Price tabela 2:")
+        self.label_sett_price = tk.Label(self.frame_sett_vol, text="Sett Price tabela 1:")
         self.label_sett_price.pack(side="top", padx=5, pady=5)
 
-        self.entry_sett_price = tk.Entry(self.frame_vol)
+        self.entry_sett_price = tk.Entry(self.frame_sett_vol)
         self.entry_sett_price.pack(side="top", padx=5, pady=5)
+
+        # Frame para entries tabela 2
+        self.frame_sett_vol_2 = tk.Frame(self.frame_entries)
+        self.frame_sett_vol_2.pack(side="left", padx=10)
+
+        self.label_vol_2 = tk.Label(self.frame_sett_vol_2, text="Vol tabela 2:")
+        self.label_vol_2.pack(side="top", padx=5, pady=5)
+
+        self.entry_vol_2 = tk.Entry(self.frame_sett_vol_2)
+        self.entry_vol_2.pack(side="top", padx=5, pady=5)
+
+        self.label_sett_price_2 = tk.Label(self.frame_sett_vol_2, text="Sett Price tabela 2:")
+        self.label_sett_price_2.pack(side="top", padx=5, pady=5)
+
+        self.entry_sett_price_2 = tk.Entry(self.frame_sett_vol_2)
+        self.entry_sett_price_2.pack(side="top", padx=5, pady=5)
 
 
 
@@ -96,7 +96,7 @@ class AbaBuySell:
         self.botao_atualizar = tk.Button(self.frame_botao_atualizar, text="Atualizar Tabela 1", command=self.botao_alterar_tabelas_price_vol)
         self.botao_atualizar.pack(side="left",padx=40, pady=5)
 
-        self.botao_atualizar_2 = tk.Button(self.frame_botao_atualizar, text="Atualizar Tabela 2", command=self.botao_alterar_tabelas_price_vol)
+        self.botao_atualizar_2 = tk.Button(self.frame_botao_atualizar, text="Atualizar Tabela 2", command=self.botao_alterar_tabelas_price_vol_2)
         self.botao_atualizar_2.pack(side="left",padx=40, pady=5)
 
         # Frame para as combobox dos meses
@@ -151,7 +151,6 @@ class AbaBuySell:
         # Criacao da segunda tabela de options com filtro
         self.table_option_2 = Table(frame_table_option_2, dataframe=self.table[self.table["Swap/Option"] == "option"],
                                   showtoolbar=True, showstatusbar=True)
-
 
 
         # Carrega e exibe as tabelas
@@ -381,9 +380,9 @@ class AbaBuySell:
                 # Carrega o arquivo para atualizar a coluna específica
                 dados_mes = pd.read_csv(caminho_arquivo)
                 if not dados_mes.empty:
-                    condicao = (dados_mes["Delivery Month"] == self.box_tabela_1.get()) | \
-                    (dados_mes["Delivery Month"] == self.box_tabela_2.get())
-
+                    condicao = dados_mes["Delivery Month"] == self.box_tabela_1.get()
+                    #(dados_mes["Delivery Month"] == self.box_tabela_2.get())
+                    
                     if condicao.any():
                         #chama as funcoes apply para alterar as colunas especificas
                         dados_mes["MTM (Eq USD)"] = dados_mes.apply(logica_apply_mtm, axis=1)  
@@ -426,22 +425,224 @@ class AbaBuySell:
             self.table_option.redraw()
 
             # Atualizando os valores da segunda tabela
-            tabela_swap_2 = self.table_completa[
-            (self.table_completa["Swap/Option"].str.lower() == "swap") & 
-            (self.table_completa["Delivery Month"] == self.box_tabela_2.get())]
+            #tabela_swap_2 = self.table_completa[
+            #(self.table_completa["Swap/Option"].str.lower() == "swap") & 
+            #(self.table_completa["Delivery Month"] == self.box_tabela_2.get())]
 
-            tabela_option_2 = self.table_completa[
-            (self.table_completa["Swap/Option"].str.lower() == "option") & 
-            (self.table_completa["Delivery Month"] == self.box_tabela_2.get())]
+            #tabela_option_2 = self.table_completa[
+            #(self.table_completa["Swap/Option"].str.lower() == "option") & 
+            #(self.table_completa["Delivery Month"] == self.box_tabela_2.get())]
 
-            self.table_swap_2.updateModel(TableModel(tabela_swap_2))
-            self.table_swap_2.redraw()
+            #self.table_swap_2.updateModel(TableModel(tabela_swap_2))
+            #self.table_swap_2.redraw()
 
-            self.table_option_2.updateModel(TableModel(tabela_option_2))
-            self.table_option_2.redraw()
+            #self.table_option_2.updateModel(TableModel(tabela_option_2))
+            #self.table_option_2.redraw()
 
-            
         print("Tabelas atualizadas com sucesso.")
+
+    def botao_alterar_tabelas_price_vol_2(self):  # Ação do botão para alterar os dados da tabela
+            # Lógica para aplicar a volatilidade para a linha
+            def logica_apply_mtm(linha):
+                time_in_float = converte_data_float(linha["Expire Date"])
+                premium = calcula_b_s(float(self.sett_price),float(linha["Strike"]),time_in_float,float(self.vol),dividend=0.0,rate=0.0)
+
+                if linha["Swap/Option"].lower() == "option":  # Apenas para as linhas de "option" 
+                    if linha["Product Type"].lower() == "call":
+                        
+                        return round(premium[0]*linha["Notional"]*375, 2)  # Retorna o valor calculado
+                    else:
+                        return round(premium[1]*linha["Notional"]*375, 2)
+
+                elif linha["Swap/Option"].lower() == "swap":
+                    if linha["Buy/Sell"].lower() == "buy":
+                        mtm = int(linha["Notional"])*(float(self.sett_price)-float(linha["Strike"]))*375
+                        return round(mtm, 2)
+                    elif linha["Buy/Sell"].lower() == "sell":
+                        mtm = int(linha["Notional"])*(float(linha["Strike"])-float(self.sett_price))*375
+                        return round(mtm, 2)
+
+            def logica_apply_delta(linha):
+                time_in_float = converte_data_float(linha["Expire Date"])
+
+                if linha["Swap/Option"].lower() == "option":  # Apenas para as linhas de "option"
+                    premium = calcula_b_s(float(self.sett_price),float(linha["Strike"]),time_in_float,float(self.vol),dividend=0.0,rate=0.0)
+                    delta = delta_calc(premium[2])
+
+                    if linha["Product Type"].lower() == "call":
+                        if linha["Buy/Sell"].lower() == "buy":  
+                            return round(delta[0]*linha["Notional"], 2)
+                        elif linha["Buy/Sell"].lower() == "sell":
+                            return round(-delta[0]*linha["Notional"], 2)
+                        
+                    elif linha["Product Type"].lower() == "put":
+                        if linha["Buy/Sell"].lower() == "buy":
+                            return round(delta[1]*linha["Notional"], 2)
+                        elif linha["Buy/Sell"].lower() == "sell":
+                            return round(-delta[1]*linha["Notional"], 2)
+
+                elif linha["Swap/Option"].lower() == "swap":
+                    if linha["Buy/Sell"].lower() == "buy":
+                        return round(1*linha["Notional"], 2)
+                    elif linha["Buy/Sell"].lower() == "sell":
+                        return round(-1*linha["Notional"], 2) # Mantém o valor original para swaps
+
+            def logica_apply_gamma(linha):
+                time_in_float = converte_data_float(linha["Expire Date"])
+
+                if linha["Swap/Option"].lower() == "option":  # Apenas para as linhas de "option"
+                    premium = calcula_b_s(float(self.sett_price),float(linha["Strike"]),time_in_float,float(self.vol),dividend=0.0,rate=0.0)
+                    gamma = gamma_calc(premium[2],float(self.sett_price), float(self.vol), time_in_float)
+                    
+                    if linha["Buy/Sell"].lower() == "buy":
+                        return round(gamma*linha["Notional"], 2)
+                    elif linha["Buy/Sell"].lower() == "sell":
+                        return round(-gamma*linha["Notional"], 2)
+
+                elif linha["Swap/Option"].lower() == "swap":
+                    return 0  # Mantém o valor original para swaps
+
+            def logica_apply_vega(linha):
+                time_in_float = converte_data_float(linha["Expire Date"])
+
+                if linha["Swap/Option"].lower() == "option":  # Apenas para as linhas de "option"
+                    premium = calcula_b_s(float(self.sett_price),float(linha["Strike"]),time_in_float,float(self.vol),dividend=0.0,rate=0.0)
+                    vega = vega_calc(premium[2],float(self.sett_price), time_in_float)
+                    
+                    if linha["Buy/Sell"].lower() == "sell":
+                        if linha["Product Type"].lower() == "put":
+                            return round(-vega*linha["Notional"], 2)
+                        else:
+                            return round(vega*linha["Notional"], 2)
+                    else:
+                        return round(vega*linha["Notional"], 2)
+
+                elif linha["Swap/Option"].lower() == "swap":
+                    return 0  # Mantém o valor original para swaps
+            
+            def logica_apply_theta(linha):
+                time_in_float = converte_data_float(linha["Expire Date"])
+
+                if linha["Swap/Option"].lower() == "option":  # Apenas para as linhas de "option"
+                    premium = calcula_b_s(float(self.sett_price),float(linha["Strike"]),time_in_float,float(self.vol),dividend=0.0,rate=0.0)
+                    theta = theta_calc(premium[2],premium[3], float(self.sett_price), float(linha["Strike"]), time_in_float, 0.0, float(self.vol))
+                    
+                    if linha["Product Type"].lower() == "call":
+                        if linha["Buy/Sell"].lower() == "buy":  
+                            return round(theta[0]*linha["Notional"], 2)
+                        elif linha["Buy/Sell"].lower() == "sell":
+                            return round(-theta[0]*linha["Notional"], 2)
+                        
+                    elif linha["Product Type"].lower() == "put":
+                        if linha["Buy/Sell"].lower() == "buy":
+                            return round(theta[1]*linha["Notional"], 2)
+                        elif linha["Buy/Sell"].lower() == "sell":
+                            return round(-theta[1]*linha["Notional"], 2)
+
+                elif linha["Swap/Option"].lower() == "swap":
+                    return 0  # Mantém o valor original para swaps
+
+            def logica_apply_rho(linha):
+                time_in_float = converte_data_float(linha["Expire Date"])
+
+                if linha["Swap/Option"].lower() == "option":  # Apenas para as linhas de "option"
+                    premium = calcula_b_s(float(self.sett_price),float(linha["Strike"]),time_in_float,float(self.vol),dividend=0.0,rate=0.0)
+                    rho = rho_calc(premium[3], float(linha["Strike"]), time_in_float, 0.0)
+                    
+                    if linha["Product Type"].lower() == "call":
+                        if linha["Buy/Sell"].lower() == "buy":  
+                            return round(rho[0]*linha["Notional"], 2)
+                        elif linha["Buy/Sell"].lower() == "sell":
+                            return round(rho[0]*linha["Notional"], 2)
+                            
+                    elif linha["Product Type"].lower() == "put":
+                        if linha["Buy/Sell"].lower() == "buy":
+                            return round(rho[1]*linha["Notional"], 2)
+                        elif linha["Buy/Sell"].lower() == "sell":
+                            return round(rho[1]*linha["Notional"], 2)
+
+                elif linha["Swap/Option"].lower() == "swap":
+                    return 0  # Mantém o valor original para swaps
+
+
+            # Coleta os valores dos inputs de sett price e vol
+            self.sett_price = self.entry_sett_price_2.get()
+            self.vol = self.entry_vol_2.get()
+
+            # Inicializa o DataFrame consolidado (se ainda não foi feito)
+            self.table_completa = pd.DataFrame()
+
+            # Atualiza os dados mês a mês
+            diretorio_atual = os.path.dirname(os.path.abspath(__file__))
+
+            for mes in meses_nomes:
+                caminho_arquivo = os.path.join(diretorio_atual, f"table_{mes}.csv")
+                
+
+                if os.path.exists(caminho_arquivo):
+                    # Carrega o arquivo para atualizar a coluna específica
+                    dados_mes = pd.read_csv(caminho_arquivo)
+                    if not dados_mes.empty:
+                        condicao = dados_mes["Delivery Month"] == self.box_tabela_2.get()
+                        #(dados_mes["Delivery Month"] == self.box_tabela_2.get())
+                        
+                        if condicao.any():
+                            #chama as funcoes apply para alterar as colunas especificas
+                            dados_mes["MTM (Eq USD)"] = dados_mes.apply(logica_apply_mtm, axis=1)  
+                            dados_mes["Delta"] = dados_mes.astype(object).apply(logica_apply_delta, axis=1)
+                            dados_mes["Gamma"] = dados_mes.astype(object).apply(logica_apply_gamma, axis=1)
+                            dados_mes["Vega"] = dados_mes.astype(object).apply(logica_apply_vega, axis=1)
+                            dados_mes["Theta"] = dados_mes.astype(object).apply(logica_apply_theta, axis=1)
+                            dados_mes["Rho"] = dados_mes.astype(object).apply(logica_apply_rho, axis=1)
+                    
+                            # Salva o arquivo atualizado
+                            dados_mes.to_csv(caminho_arquivo, index=False)
+                else:
+                    print(f"Arquivo não encontrado para o mês {mes}.")
+
+            for mes in meses_nomes:
+                caminho_arquivo = os.path.join(diretorio_atual, f"table_{mes}.csv")
+                if os.path.exists(caminho_arquivo):
+                    dados_mes = pd.read_csv(caminho_arquivo)
+                    self.table_completa = pd.concat([self.table_completa, dados_mes], ignore_index=True)
+                else:
+                    print(f"Arquivo não encontrado para o mês {mes}.")
+
+
+            # Atualiza as tabelas da interface gráfica
+            if not self.table_completa.empty:
+                
+                # Atualizando os valores da primeira tabela
+                #tabela_swap = self.table_completa[
+                #(self.table_completa["Swap/Option"].str.lower() == "swap") & 
+                #(self.table_completa["Delivery Month"] == self.box_tabela_1.get())]
+
+                #tabela_option = self.table_completa[
+                #(self.table_completa["Swap/Option"].str.lower() == "option") & 
+                #(self.table_completa["Delivery Month"] == self.box_tabela_1.get())]
+
+                #self.table_swap.updateModel(TableModel(tabela_swap))
+                #self.table_swap.redraw()
+
+                #self.table_option.updateModel(TableModel(tabela_option))
+                #self.table_option.redraw()
+
+                # Atualizando os valores da segunda tabela
+                tabela_swap_2 = self.table_completa[
+                (self.table_completa["Swap/Option"].str.lower() == "swap") & 
+                (self.table_completa["Delivery Month"] == self.box_tabela_2.get())]
+
+                tabela_option_2 = self.table_completa[
+                (self.table_completa["Swap/Option"].str.lower() == "option") & 
+                (self.table_completa["Delivery Month"] == self.box_tabela_2.get())]
+
+                self.table_swap_2.updateModel(TableModel(tabela_swap_2))
+                self.table_swap_2.redraw()
+
+                self.table_option_2.updateModel(TableModel(tabela_option_2))
+                self.table_option_2.redraw()
+
+            print("Tabelas atualizadas com sucesso.")
 
     def abrir_janela_excluir_contrato(self):
         for widget in self.frame.winfo_children():
@@ -739,29 +940,32 @@ class AbaBuySell:
             
             self.table2 = le_arquivos()
 
-
-            
             # Atualiza as visualizações específicas para swap e option
             self.table_junto = pd.concat([self.table, self.table2], ignore_index=True)
+
+            
+            
             
             if (dados["Swap/Option"].lower() == "swap") & (dados["Delivery Month"] == self.box_tabela_1.get()):
-                self.table_swap.updateModel(TableModel(self.table_junto[self.table_junto["Swap/Option"].str.lower() == "swap"]))
+                self.table_swap.updateModel(TableModel(self.table_junto[(self.table_junto["Swap/Option"].str.lower() == "swap") & 
+                                                      (self.table_junto["Delivery Month"] == self.box_tabela_1.get())]))
                 self.table_swap.redraw()
             elif (dados["Swap/Option"].lower() == "option") & (dados["Delivery Month"] == self.box_tabela_1.get()):
-                self.table_option.updateModel(TableModel(self.table_junto[self.table_junto["Swap/Option"].str.lower() == "option"]))
+                self.table_option.updateModel(TableModel(self.table_junto[(self.table_junto["Swap/Option"].str.lower() == "option") & 
+                                                        (self.table_junto["Delivery Month"] == self.box_tabela_1.get())]))
                 self.table_option.redraw()
+
             elif (dados["Swap/Option"].lower() == "swap") & (dados["Delivery Month"] == self.box_tabela_2.get()):
-                self.table_swap_2.updateModel(TableModel(self.table_junto[self.table_junto["Swap/Option"].str.lower() == "swap"]))
+                self.table_swap_2.updateModel(TableModel(self.table_junto[(self.table_junto["Swap/Option"].str.lower() == "swap") & 
+                                                        (self.table_junto["Delivery Month"] == self.box_tabela_2.get())]))
                 self.table_swap_2.redraw()
             elif (dados["Swap/Option"].lower() == "option") & (dados["Delivery Month"] == self.box_tabela_2.get()):
-                self.table_option_2.updateModel(TableModel(self.table_junto[self.table_junto["Swap/Option"].str.lower() == "option"]))
+                self.table_option_2.updateModel(TableModel(self.table_junto[(self.table_junto["Swap/Option"].str.lower() == "option") & 
+                                                          (self.table_junto["Delivery Month"] == self.box_tabela_2.get())]))
                 self.table_option_2.redraw()
-
-
 
             self.salvar_tabelas()
             # Fecha a janela após adicionar o contrato
-            
             
             janela_adicionar.destroy()
 
