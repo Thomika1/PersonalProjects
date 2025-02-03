@@ -112,11 +112,11 @@ class AbaBuySell:
 
         # Frame para a tabela de cima (option)
         self.frame_topo = tk.Frame(self.frame)
-        self.frame_topo.pack(expand=True, fill='both', side="bottom")
+        self.frame_topo.pack(expand=True, fill='x', side="bottom")
 
         # Frame para a tabela de baixo (swap)
         self.frame_baixo = tk.Frame(self.frame)
-        self.frame_baixo.pack(expand=True, fill='both', side="bottom")
+        self.frame_baixo.pack(expand=True, fill='x', side="bottom")
         # -------------------------------------------------------------
 
         # Frame para a tabela de swap
