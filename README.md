@@ -32,4 +32,31 @@ Tecnologias Utilizadas:
  - pandastable: Para visualização ddos contratos.
 
  - Interface: TKinter.
+
+
+# My Python Projects
+
+Welcome to my repository! Here, you will find a collection of my projects developed in Python, focusing on data analysis and practical solutions for contract management. Each project was created with the goal of improving my skills and solving real-world problems.
+## Data Analysis in Python
+
+This directory contains projects related to data analysis, where I use libraries such as Pandas, NumPy, Matplotlib, and Seaborn to explore, clean, visualize, and interpret data. Some of the topics covered include:
+
+ - Exploratory Data Analysis (EDA).
+ - Data visualization for insights.
+
+## Coffee Contract Manager
+
+This project was developed during my internship at Diamante Agro and aims to manage coffee contracts by calculating greeks and key metrics for the industry. The system was built with the following features:
+
+  - Contract registration and management.
+  - Automatic calculation of greeks (coffee quality measures).
+  - Interactive tables for contract visualization.
+  - A simple and efficient interface for end users.
+
+Technologies Used:
+
+- Python: The project's main programming language.
+- Pandas: For data manipulation and analysis.
+- pandastable: For contract visualization.
+- Interface: Tkinter.
    
