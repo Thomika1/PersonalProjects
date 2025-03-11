@@ -7,9 +7,9 @@ Projetos
 
 Este diretório contém projetos relacionados à análise de dados, onde utilizo bibliotecas como Pandas, NumPy, Matplotlib e Seaborn para explorar, limpar, visualizar e interpretar dados. Alguns dos tópicos abordados incluem:
 
-> Análise exploratória de dados (EDA).
+. Análise exploratória de dados (EDA).
 
-> Visualização de dados para insights.
+. Visualização de dados para insights.
 
    
 
